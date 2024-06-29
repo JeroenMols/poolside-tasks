@@ -1,10 +1,8 @@
 <script lang="ts">
-  let accountNumber = ''
-  let accessToken = ''
+  import { ensureNonEmpty } from '../utils/assertions'
+
   let name = ''
   export let onLogIn: (accessToken: string) => void
-
-  console.log('App component loaded')
 
   type RegisterResponse = {
     account_number: string
@@ -21,9 +19,11 @@
     })
 
     if (response.ok) {
-      const body = (await response.json()) as RegisterResponse
-      accountNumber = body.account_number
-      await login(accountNumber)
+      const registerResponse = (await response.json()) as RegisterResponse
+      ensureNonEmpty(registerResponse.account_number)
+      await login(registerResponse.account_number)
+    } else {
+      alert(`Failed to register - backend error (${response.status})`)
     }
   }
 
@@ -34,14 +34,16 @@
     })
 
     if (response.ok) {
-      const body = (await response.json()) as LogInResponse
-      accessToken = body.access_token
-      onLogIn(accessToken)
+      const loginResponse = (await response.json()) as LogInResponse
+      ensureNonEmpty(loginResponse.access_token)
+      onLogIn(loginResponse.access_token)
+    } else {
+      alert(`Failed to login - backend error (${response.status})`)
     }
   }
 </script>
 
 <h1>Tasks</h1>
 
-<input bind:value={name} type="text" placeholder="Enter your name" />
+<input bind:value={name} type="text" placeholder="Enter your name"/>
 <button on:click={() => register()}>Get started</button>
