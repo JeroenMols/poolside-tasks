@@ -2,22 +2,40 @@ package main
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"net/http"
 )
 
 func main() {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /hello/{name}", func(w http.ResponseWriter, r *http.Request) {
-		name := r.PathValue("name")
-		fmt.Println("Inbound request")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Content-Security-Policy", "connect-src http://localhost:5176 http://localhost:5173")
-		w.Write([]byte("{ \"greeting\": \"Hello, " + name + "!\"}"))
+	mux.HandleFunc("POST /users/register", func(w http.ResponseWriter, r *http.Request) {
+		routeUsersRegister(w)
+	})
+	mux.HandleFunc("POST /users/login", func(w http.ResponseWriter, r *http.Request) {
+		routeUsersLogin(w)
 	})
 
 	err := http.ListenAndServe("localhost:8080", mux)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+}
+
+func routeUsersRegister(w http.ResponseWriter) {
+	fmt.Println("Registering new user")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	accountNumber := uuid.New().String()
+
+	w.Write([]byte(fmt.Sprintf("{ \"account_number\": \"%s\" }", accountNumber)))
+}
+
+func routeUsersLogin(w http.ResponseWriter) {
+	fmt.Println("Logging in new user")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	access_token := uuid.New().String()
+
+	w.Write([]byte(fmt.Sprintf("{ \"access_token\": \"%s\"}", access_token)))
 }
