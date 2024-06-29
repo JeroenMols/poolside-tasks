@@ -1,17 +1,25 @@
-<script>
-  import { onMount } from 'svelte'
-  import ComingSoon from './components/ComingSoon.svelte'
+<script lang="ts">
+  import LogIn from './components/log-in.svelte'
+  import ChooseList from './components/choose-list.svelte'
+  import Todo from './components/to-do.svelte'
 
-  let greeting = '...loading'
+  let accessToken: string | null = null
+  let todoList: string | null = null
 
-  onMount(() => {
-    fetch('http://localhost:8080/hello/jeroen')
-      .then((response) => response.json())
-      .then((data) => {
-        greeting = data.greeting
-      })
-  })
+  const onLogIn = (token: string) => {
+    console.log('Received token:', token)
+    accessToken = token
+  }
+  const onListSelected = (list: string) => {
+    console.log('List selected:', list)
+    todoList = list
+  }
 </script>
 
-<h1>{greeting}</h1>
-<ComingSoon />
+{#if todoList != null}
+  <Todo {accessToken} {todoList} />
+{:else if accessToken != null}
+  <ChooseList {accessToken} {onListSelected} />
+{:else}
+  <LogIn {onLogIn} />
+{/if}
