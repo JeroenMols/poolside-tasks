@@ -4,8 +4,8 @@ import (
 	"backend/net"
 	"backend/util"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"net/http"
 )
 
@@ -22,62 +22,60 @@ func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Registering new user")
 	u.AddResponseHeaders(w)
 
-	if r.Body == nil {
-		return
-	}
-
-	var user usersRegisterRequest
-	decoder := json.NewDecoder(r.Body)
-	decoder.DisallowUnknownFields()
-	err := decoder.Decode(&user)
+	user, err := parseBody[usersRegisterRequest](r)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-
-		json.Marshal(Error{Error: "Validation error"})
-		if err != nil {
-			_, _ = w.Write([]byte("{\"error\":\"Invalid body\"}"))
-		}
-		fmt.Println(err.Error())
+		halt(w, err.Error())
 		return
-	} else {
-		fmt.Printf("User name: %s\n", user.Name)
 	}
 
+	fmt.Printf("User name: %s\n", user.Name)
 	response := usersRegisterResponse{
 		AccountNumber: u.GenerateUuid(),
 	}
 
-	responseString, err := json.Marshal(response)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	w.Write(responseString)
+	success(w, response)
 }
 
 func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Logging in user")
 	u.AddResponseHeaders(w)
 
-	var user usersLoginRequest
-	err := json.NewDecoder(r.Body).Decode(&user)
+	user, err := parseBody[usersLoginRequest](r)
 	if err != nil {
-		fmt.Println(err.Error())
-	} else {
-		fmt.Printf("Account number: %s\n", user.AccountNumber)
+		halt(w, err.Error())
+		return
 	}
 
-	accessToken := uuid.New().String()
+	fmt.Printf("Account number: %s\n", user.AccountNumber)
+	accessToken := u.GenerateUuid()
 	response := usersLoginResponse{
 		AccessToken: accessToken,
 	}
 
-	responseString, err := json.Marshal(response)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
+	success(w, response)
+}
 
-	w.Write(responseString)
+func parseBody[K any](r *http.Request) (K, error) {
+	var result K
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(&result)
+	if err != nil {
+		return result, errors.New("invalid body")
+	}
+	return result, nil
+}
+
+func success[K any](w http.ResponseWriter, result K) {
+	w.WriteHeader(http.StatusOK)
+	response, _ := json.Marshal(result)
+	_, _ = w.Write(response)
+}
+
+func halt(w http.ResponseWriter, error string) {
+	w.WriteHeader(http.StatusBadRequest)
+	response, _ := json.Marshal(Error{Error: error})
+	_, _ = w.Write(response)
 }
 
 type usersRegisterRequest struct {
