@@ -11,9 +11,14 @@ import (
 
 func main() {
 	mux := http.NewServeMux()
-
 	database := db.InMemoryDatabase()
+
 	users := routes.Users{
+		Database:           database,
+		AddResponseHeaders: net.AddCorsReponseHeaders,
+		GenerateUuid:       util.GenerateRandomUuid,
+	}
+	todoLists := routes.TodoLists{
 		Database:           database,
 		AddResponseHeaders: net.AddCorsReponseHeaders,
 		GenerateUuid:       util.GenerateRandomUuid,
@@ -21,6 +26,8 @@ func main() {
 
 	mux.HandleFunc("POST /users/register", users.Register)
 	mux.HandleFunc("POST /users/login", users.Login)
+	mux.HandleFunc("POST /todolists", todoLists.Create)
+	mux.HandleFunc("GET /todolists/{list_id}", todoLists.Get)
 
 	// Debug route
 	debug := routes.Debug{
