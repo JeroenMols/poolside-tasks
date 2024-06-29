@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
 	"net/http"
@@ -10,10 +11,10 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("POST /users/register", func(w http.ResponseWriter, r *http.Request) {
-		routeUsersRegister(w)
+		routeUsersRegister(w, r)
 	})
 	mux.HandleFunc("POST /users/login", func(w http.ResponseWriter, r *http.Request) {
-		routeUsersLogin(w)
+		routeUsersLogin(w, r)
 	})
 
 	err := http.ListenAndServe("localhost:8080", mux)
@@ -22,20 +23,68 @@ func main() {
 	}
 }
 
-func routeUsersRegister(w http.ResponseWriter) {
+func routeUsersRegister(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Registering new user")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	accountNumber := uuid.New().String()
+	var user usersRegisterRequest
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Printf("User name: %s\n", user.Name)
+	}
 
-	w.Write([]byte(fmt.Sprintf("{ \"account_number\": \"%s\" }", accountNumber)))
+	accountNumber := uuid.New().String()
+	response := usersRegisterResponse{
+		AccountNumber: accountNumber,
+	}
+
+	responseString, err := json.Marshal(response)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	w.Write(responseString)
 }
 
-func routeUsersLogin(w http.ResponseWriter) {
-	fmt.Println("Logging in new user")
+func routeUsersLogin(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Logging in user")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	access_token := uuid.New().String()
+	var user usersLoginRequest
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Printf("Account number: %s\n", user.AccountNumber)
+	}
 
-	w.Write([]byte(fmt.Sprintf("{ \"access_token\": \"%s\"}", access_token)))
+	accessToken := uuid.New().String()
+	response := usersLoginResponse{
+		AccessToken: accessToken,
+	}
+
+	responseString, err := json.Marshal(response)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	w.Write(responseString)
+}
+
+type usersRegisterRequest struct {
+	Name string `json:"name"`
+}
+
+type usersRegisterResponse struct {
+	AccountNumber string `json:"account_number"`
+}
+
+type usersLoginRequest struct {
+	AccountNumber string `json:"account_number"`
+}
+
+type usersLoginResponse struct {
+	AccessToken string `json:"access_token"`
 }
