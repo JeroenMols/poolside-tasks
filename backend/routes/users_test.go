@@ -48,6 +48,13 @@ func TestUsers_Register(t *testing.T) {
 			responseBody:  "{\"error\":\"invalid body\"}",
 			databaseUsers: make(map[string]string),
 		},
+		{
+			description:   "Empty body",
+			body:          "{}",
+			responseCode:  http.StatusBadRequest,
+			responseBody:  "{\"error\":\"validation error\"}",
+			databaseUsers: make(map[string]string),
+		},
 	}
 
 	for _, tt := range tests {
@@ -110,6 +117,13 @@ func TestUsers_Login(t *testing.T) {
 			body:           "{\"invalid\":\"body\"}",
 			responseCode:   http.StatusBadRequest,
 			responseBody:   "{\"error\":\"invalid body\"}",
+			databaseTokens: make(map[string]string),
+		},
+		{
+			description:    "Empty body",
+			body:           "{}",
+			responseCode:   http.StatusBadRequest,
+			responseBody:   "{\"error\":\"validation error\"}",
 			databaseTokens: make(map[string]string),
 		},
 	}

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"net/http"
 )
 
@@ -52,6 +53,7 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: check if user exists
 	// TODO: return existing token if exists
 
 	fmt.Printf("Account number: %s\n", user.AccountNumber)
@@ -79,6 +81,13 @@ func parseBody[K any](r *http.Request) (K, error) {
 	if err != nil {
 		return result, errors.New("invalid body")
 	}
+
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	err = validate.Struct(result)
+	if err != nil {
+		return result, errors.New("validation error")
+	}
+
 	return result, nil
 }
 
@@ -95,7 +104,7 @@ func halt(w http.ResponseWriter, error string) {
 }
 
 type usersRegisterRequest struct {
-	Name string `json:"name"`
+	Name string `json:"name" validate:"required"`
 }
 
 type usersRegisterResponse struct {
@@ -103,7 +112,7 @@ type usersRegisterResponse struct {
 }
 
 type usersLoginRequest struct {
-	AccountNumber string `json:"account_number"`
+	AccountNumber string `json:"account_number" validate:"required"`
 }
 
 type usersLoginResponse struct {
