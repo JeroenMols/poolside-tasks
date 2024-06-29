@@ -3,6 +3,7 @@ package main
 import (
 	"backend/net"
 	"backend/routes"
+	"backend/util"
 	"fmt"
 	"net/http"
 )
@@ -12,6 +13,7 @@ func main() {
 
 	users := routes.Users{
 		AddResponseHeaders: net.AddCorsReponseHeaders,
+		GenerateUuid:       util.GenerateRandomUuid,
 	}
 
 	mux.HandleFunc("POST /users/register", users.Register)

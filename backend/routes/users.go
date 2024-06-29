@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backend/net"
+	"backend/util"
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
@@ -10,23 +11,40 @@ import (
 
 type Users struct {
 	AddResponseHeaders net.AddResponseHeaders
+	GenerateUuid       util.GenerateUuid
+}
+
+type Error struct {
+	Error string `json:"error"`
 }
 
 func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Registering new user")
 	u.AddResponseHeaders(w)
 
+	if r.Body == nil {
+		return
+	}
+
 	var user usersRegisterRequest
-	err := json.NewDecoder(r.Body).Decode(&user)
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(&user)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+
+		json.Marshal(Error{Error: "Validation error"})
+		if err != nil {
+			_, _ = w.Write([]byte("{\"error\":\"Invalid body\"}"))
+		}
 		fmt.Println(err.Error())
+		return
 	} else {
 		fmt.Printf("User name: %s\n", user.Name)
 	}
 
-	accountNumber := uuid.New().String()
 	response := usersRegisterResponse{
-		AccountNumber: accountNumber,
+		AccountNumber: u.GenerateUuid(),
 	}
 
 	responseString, err := json.Marshal(response)
