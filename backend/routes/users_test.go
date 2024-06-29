@@ -50,8 +50,6 @@ func TestUsers_Register(t *testing.T) {
 		},
 	}
 
-	// TODO enforce min size for user name
-
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
 			database := db.InMemoryDatabase()

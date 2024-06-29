@@ -30,6 +30,8 @@ func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: validate user name (forbidden chars, length, etc)
+
 	fmt.Printf("User name: %s\n", user.Name)
 	account_number := u.GenerateUuid()
 	u.Database.Users[account_number] = user.Name
@@ -49,6 +51,8 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 		halt(w, err.Error())
 		return
 	}
+
+	// TODO: return existing token if exists
 
 	fmt.Printf("Account number: %s\n", user.AccountNumber)
 	accessToken := u.GenerateUuid()
