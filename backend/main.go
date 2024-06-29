@@ -12,15 +12,22 @@ import (
 func main() {
 	mux := http.NewServeMux()
 
+	database := db.InMemoryDatabase()
 	users := routes.Users{
-		Database:           db.InMemoryDatabase(),
+		Database:           database,
 		AddResponseHeaders: net.AddCorsReponseHeaders,
 		GenerateUuid:       util.GenerateRandomUuid,
 	}
 
 	mux.HandleFunc("POST /users/register", users.Register)
 	mux.HandleFunc("POST /users/login", users.Login)
-	mux.HandleFunc("GET /users/debug", users.Debug)
+
+	// Debug route
+	debug := routes.Debug{
+		Database:           database,
+		AddResponseHeaders: net.AddCorsReponseHeaders,
+	}
+	mux.HandleFunc("GET /debug", debug.Debug)
 
 	err := http.ListenAndServe("localhost:8080", mux)
 	if err != nil {

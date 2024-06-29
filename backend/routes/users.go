@@ -59,12 +59,6 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 	net.Success(w, response)
 }
 
-func (u *Users) Debug(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Logging in user")
-	u.AddResponseHeaders(w)
-	net.Success(w, u.Database)
-}
-
 type usersRegisterRequest struct {
 	Name string `json:"name" validate:"required"`
 }
