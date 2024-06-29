@@ -34,7 +34,7 @@
     })
 
     if (response.ok) {
-      const body = await response.json()
+      const body = (await response.json()) as LogInResponse
       accessToken = body.access_token
       onLogIn(accessToken)
     }
