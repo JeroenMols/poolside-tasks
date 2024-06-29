@@ -13,6 +13,7 @@
   }
 
   const register = async () => {
+    // TODO prevent SQL injection here
     let response = await fetch('http://localhost:8080/users/register', {
       method: 'POST',
       body: JSON.stringify({ name: name })
@@ -45,5 +46,5 @@
 
 <h1>Tasks</h1>
 
-<input bind:value={name} type="text" placeholder="Enter your name"/>
+<input bind:value={name} type="text" placeholder="Enter your name" />
 <button on:click={() => register()}>Get started</button>
