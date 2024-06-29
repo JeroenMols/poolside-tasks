@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend/db"
 	"backend/net"
 	"backend/routes"
 	"backend/util"
@@ -12,6 +13,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	users := routes.Users{
+		Database:           db.InMemoryDatabase(),
 		AddResponseHeaders: net.AddCorsReponseHeaders,
 		GenerateUuid:       util.GenerateRandomUuid,
 	}

@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"backend/db"
 	"backend/net"
 	"backend/util"
 	"encoding/json"
@@ -10,6 +11,7 @@ import (
 )
 
 type Users struct {
+	Database           db.Database
 	AddResponseHeaders net.AddResponseHeaders
 	GenerateUuid       util.GenerateUuid
 }
@@ -29,8 +31,10 @@ func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Printf("User name: %s\n", user.Name)
+	account_number := u.GenerateUuid()
+	u.Database.Users[account_number] = user.Name
 	response := usersRegisterResponse{
-		AccountNumber: u.GenerateUuid(),
+		AccountNumber: account_number,
 	}
 
 	success(w, response)
@@ -48,6 +52,7 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Account number: %s\n", user.AccountNumber)
 	accessToken := u.GenerateUuid()
+	u.Database.AccessTokens[user.AccountNumber] = accessToken
 	response := usersLoginResponse{
 		AccessToken: accessToken,
 	}
