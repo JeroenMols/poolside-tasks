@@ -1,90 +1,24 @@
 package main
 
 import (
-	"encoding/json"
+	"backend/net"
+	"backend/routes"
 	"fmt"
-	"github.com/google/uuid"
 	"net/http"
 )
 
 func main() {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("POST /users/register", func(w http.ResponseWriter, r *http.Request) {
-		routeUsersRegister(w, r)
-	})
-	mux.HandleFunc("POST /users/login", func(w http.ResponseWriter, r *http.Request) {
-		routeUsersLogin(w, r)
-	})
+	users := routes.Users{
+		AddResponseHeaders: net.AddCorsReponseHeaders,
+	}
+
+	mux.HandleFunc("POST /users/register", users.Register)
+	mux.HandleFunc("POST /users/login", users.Login)
 
 	err := http.ListenAndServe("localhost:8080", mux)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-}
-
-func routeUsersRegister(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Registering new user")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	var user usersRegisterRequest
-	err := json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
-		fmt.Println(err.Error())
-	} else {
-		fmt.Printf("User name: %s\n", user.Name)
-	}
-
-	accountNumber := uuid.New().String()
-	response := usersRegisterResponse{
-		AccountNumber: accountNumber,
-	}
-
-	responseString, err := json.Marshal(response)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	w.Write(responseString)
-}
-
-func routeUsersLogin(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Logging in user")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	var user usersLoginRequest
-	err := json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
-		fmt.Println(err.Error())
-	} else {
-		fmt.Printf("Account number: %s\n", user.AccountNumber)
-	}
-
-	accessToken := uuid.New().String()
-	response := usersLoginResponse{
-		AccessToken: accessToken,
-	}
-
-	responseString, err := json.Marshal(response)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	w.Write(responseString)
-}
-
-type usersRegisterRequest struct {
-	Name string `json:"name"`
-}
-
-type usersRegisterResponse struct {
-	AccountNumber string `json:"account_number"`
-}
-
-type usersLoginRequest struct {
-	AccountNumber string `json:"account_number"`
-}
-
-type usersLoginResponse struct {
-	AccessToken string `json:"access_token"`
 }
