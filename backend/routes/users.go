@@ -4,10 +4,7 @@ import (
 	"backend/db"
 	"backend/net"
 	"backend/util"
-	"encoding/json"
-	"errors"
 	"fmt"
-	"github.com/go-playground/validator/v10"
 	"net/http"
 )
 
@@ -17,17 +14,13 @@ type Users struct {
 	GenerateUuid       util.GenerateUuid
 }
 
-type Error struct {
-	Error string `json:"error"`
-}
-
 func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Registering new user")
 	u.AddResponseHeaders(w)
 
-	user, err := parseBody[usersRegisterRequest](r)
+	user, err := net.ParseBody[usersRegisterRequest](r)
 	if err != nil {
-		halt(w, err.Error())
+		net.Halt(w, err.Error())
 		return
 	}
 
@@ -40,16 +33,16 @@ func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 		AccountNumber: account_number,
 	}
 
-	success(w, response)
+	net.Success(w, response)
 }
 
 func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Logging in user")
 	u.AddResponseHeaders(w)
 
-	user, err := parseBody[usersLoginRequest](r)
+	user, err := net.ParseBody[usersLoginRequest](r)
 	if err != nil {
-		halt(w, err.Error())
+		net.Halt(w, err.Error())
 		return
 	}
 
@@ -63,44 +56,13 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 		AccessToken: accessToken,
 	}
 
-	success(w, response)
+	net.Success(w, response)
 }
 
 func (u *Users) Debug(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Logging in user")
 	u.AddResponseHeaders(w)
-
-	success(w, u.Database)
-}
-
-func parseBody[K any](r *http.Request) (K, error) {
-	var result K
-	decoder := json.NewDecoder(r.Body)
-	decoder.DisallowUnknownFields()
-	err := decoder.Decode(&result)
-	if err != nil {
-		return result, errors.New("invalid body")
-	}
-
-	validate := validator.New(validator.WithRequiredStructEnabled())
-	err = validate.Struct(result)
-	if err != nil {
-		return result, errors.New("validation error")
-	}
-
-	return result, nil
-}
-
-func success[K any](w http.ResponseWriter, result K) {
-	w.WriteHeader(http.StatusOK)
-	response, _ := json.Marshal(result)
-	_, _ = w.Write(response)
-}
-
-func halt(w http.ResponseWriter, error string) {
-	w.WriteHeader(http.StatusBadRequest)
-	response, _ := json.Marshal(Error{Error: error})
-	_, _ = w.Write(response)
+	net.Success(w, u.Database)
 }
 
 type usersRegisterRequest struct {
