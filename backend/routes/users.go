@@ -60,6 +60,13 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 	success(w, response)
 }
 
+func (u *Users) Debug(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Logging in user")
+	u.AddResponseHeaders(w)
+
+	success(w, u.Database)
+}
+
 func parseBody[K any](r *http.Request) (K, error) {
 	var result K
 	decoder := json.NewDecoder(r.Body)

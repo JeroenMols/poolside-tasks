@@ -20,6 +20,7 @@ func main() {
 
 	mux.HandleFunc("POST /users/register", users.Register)
 	mux.HandleFunc("POST /users/login", users.Login)
+	mux.HandleFunc("GET /users/debug", users.Debug)
 
 	err := http.ListenAndServe("localhost:8080", mux)
 	if err != nil {
