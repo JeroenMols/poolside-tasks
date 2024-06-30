@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backend/db"
+	"backend/models"
 	"backend/net"
 	"backend/util"
 	"fmt"

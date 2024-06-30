@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backend/db"
+	"backend/models"
 	"backend/net"
 	"backend/util"
 	"fmt"
@@ -34,7 +35,7 @@ func (t *TodoLists) Create(w http.ResponseWriter, r *http.Request) {
 
 	listId := t.GenerateUuid()
 	fmt.Printf("Creating new todo list %s\n", listId)
-	t.Database.TodoLists[listId] = []db.TodoItem{}
+	t.Database.TodoLists[listId] = []models.TodoItem{}
 
 	net.Success(w, listCreateResponse{TodoListId: listId})
 }

@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backend/db"
+	"backend/models"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -15,7 +16,7 @@ type createListTestCase struct {
 	body          string
 	responseCode  int
 	responseBody  string
-	databaseLists map[string][]db.TodoItem
+	databaseLists map[string][]models.TodoItem
 }
 
 func TestTodoLists_Create(t *testing.T) {
@@ -30,28 +31,28 @@ func TestTodoLists_Create(t *testing.T) {
 			body:          `{"invalid":"body"}`,
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid body"}`,
-			databaseLists: make(map[string][]db.TodoItem),
+			databaseLists: make(map[string][]models.TodoItem),
 		},
 		{
 			description:   "Access token not a uuid",
 			body:          `{"access_token":"not_a_uuid"}`,
 			responseCode:  http.StatusUnauthorized,
 			responseBody:  `{"error":"invalid access token"}`,
-			databaseLists: make(map[string][]db.TodoItem),
+			databaseLists: make(map[string][]models.TodoItem),
 		},
 		{
 			description:   "Access token does not exist",
 			body:          fmt.Sprintf(`{"access_token":"%s"}`, nonExistingAccessToken),
 			responseCode:  http.StatusUnauthorized,
 			responseBody:  `{"error":"account not found"}`,
-			databaseLists: make(map[string][]db.TodoItem),
+			databaseLists: make(map[string][]models.TodoItem),
 		},
 		{
 			description:   "Create new todo list",
 			body:          fmt.Sprintf(`{"access_token":"%s"}`, validAccessToken),
 			responseCode:  http.StatusOK,
 			responseBody:  `{"todo_list_id":"static_uuid"}`,
-			databaseLists: map[string][]db.TodoItem{"static_uuid": {}},
+			databaseLists: map[string][]models.TodoItem{"static_uuid": {}},
 		},
 	}
 
