@@ -25,22 +25,26 @@ func Halt(w http.ResponseWriter, error string) {
 	_, _ = w.Write(response)
 }
 
-func ParseBody[K any](r *http.Request) (K, error) {
+func ParseBody[K any](r *http.Request) (*K, error) {
 	var result K
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 	err := decoder.Decode(&result)
 	if err != nil {
-		return result, errors.New("invalid body")
+		if err.Error() == "unexpected EOF" {
+			return nil, errors.New("validation error")
+		} else {
+			return nil, errors.New("invalid body")
+		}
 	}
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
 	err = validate.Struct(result)
 	if err != nil {
-		return result, errors.New("validation error")
+		return nil, errors.New("validation error")
 	}
 
-	return result, nil
+	return &result, nil
 }
 
 func addCorsResponseHeaders(w http.ResponseWriter) {
