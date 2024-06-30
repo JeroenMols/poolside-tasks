@@ -34,14 +34,9 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !regexp.MustCompile(listIdRegex).MatchString(body.ListId) {
-		net.HaltBadRequest(w, "invalid todo list")
-		return
-	}
-
-	todoList := t.Database.TodoLists[body.ListId]
-	if todoList == nil {
-		net.HaltBadRequest(w, "todo list does not exist")
+	todos, err := t.Database.GetTodos(body.ListId)
+	if err != nil {
+		net.HaltBadRequest(w, err.Error())
 		return
 	}
 
@@ -52,7 +47,7 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt:   t.CurrentTime(),
 	}
 	fmt.Printf("Creating new todo %s\n", item.Description)
-	t.Database.TodoLists[body.ListId] = append(todoList, item)
+	t.Database.TodoLists[body.ListId] = append(*todos, item)
 
 	net.Success(w, todoCreateResponse{
 		CreatedBy:   t.Database.Users[*accountNumber],

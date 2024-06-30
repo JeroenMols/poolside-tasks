@@ -131,7 +131,7 @@ func TestTodo_CreateLogic(t *testing.T) {
 			body: fmt.Sprintf(`{"access_token":"%s", "description":"%s", "todo_list_id":"%s"}`,
 				validAccessToken, "test todo", nonExistingList),
 			responseCode: http.StatusBadRequest,
-			responseBody: `{"error":"Todo list not found"}`,
+			responseBody: `{"error":"todo list does not exist"}`,
 			databaseLists: map[string][]models.TodoItem{
 				existingList: {},
 			},

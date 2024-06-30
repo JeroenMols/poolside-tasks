@@ -21,6 +21,7 @@ func InMemoryDatabase() Database {
 }
 
 const accessTokenRegex = `^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$`
+const listIdRegex = `^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$`
 
 func (d *Database) Authorize(accessToken string) (*string, error) {
 	if !regexp.MustCompile(accessTokenRegex).MatchString(accessToken) {
@@ -31,4 +32,16 @@ func (d *Database) Authorize(accessToken string) (*string, error) {
 		return nil, errors.New("account not found")
 	}
 	return &accountNumber, nil
+}
+
+func (d *Database) GetTodos(listId string) (*[]models.TodoItem, error) {
+	if !regexp.MustCompile(listIdRegex).MatchString(listId) {
+		return nil, errors.New("invalid todo list")
+	}
+
+	todoList := d.TodoLists[listId]
+	if todoList == nil {
+		return nil, errors.New("todo list does not exist")
+	}
+	return &todoList, nil
 }
