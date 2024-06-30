@@ -70,6 +70,8 @@
 </div>
 
 <style>
+  @import '../assets/base.css';
+
   .container {
     width: 90%;
     margin: 0 0;
@@ -78,7 +80,7 @@
   h1 {
     font-family: 'Open Sans', sans-serif;
     font-weight: 600;
-    color: #c2185b;
+    color: var(--primary);
     margin-top: 20px;
   }
   .task-list {
@@ -87,7 +89,7 @@
     padding: 10px 0 0 0;
   }
   .task-item {
-    background: #ffffff;
+    background: var(--white);
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
@@ -98,22 +100,23 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
+    color: var(--primary);
   }
   .status {
     display: inline-block;
     padding: 5px 10px;
     border-radius: 4px;
     font-size: 14px;
-    color: white;
+    color: var(--white);
   }
   .status.todo {
-    background-color: #f44336;
+    background-color: var(--status-todo);
   }
   .status.ongoing {
-    background-color: #ffc107;
+    background-color: var(--status-progress);
   }
   .status.done {
-    background-color: #4caf50;
+    background-color: var(--status-done);
   }
   .new-task {
     display: flex;
@@ -121,19 +124,19 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: #fce4ec;
+    background-color: var(--background);
     padding: 10px;
-    border-top: 1px solid #cccccc;
+    border-top: 1px solid var(--light-gray);
   }
   .new-task input {
     flex: 1;
     padding: 10px;
     margin-right: 10px;
-    border: 1px solid #cccccc;
+    border: 1px solid var(--light-gray);
     border-radius: 4px;
   }
   .new-task button {
-    background-color: var(--ev-c-gray-1);
+    background-color: var(--primary);
     color: white;
     padding: 10px 15px;
     border: none;
@@ -142,6 +145,6 @@
     cursor: pointer;
   }
   .new-task button:hover {
-    background-color: #c2185b;
+    background-color: var(--primary-hover);
   }
 </style>

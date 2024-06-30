@@ -1,10 +1,17 @@
 :root {
+  --primary: #42a5f5;
+  --primary-hover: #1e88e5;
+  --white: #ffffff;
+  --light-gray: #cccccc;
+  --dark-gray: #333333;
+  --background: #e3f2fd;
+  --status-todo: #f44336;
+  --status-in-progress: #ffc107;
+  --status-done: #4caf50;
+
   --ev-c-white: #ffffff;
   --ev-c-white-soft: #f8f8f8;
   --ev-c-white-mute: #f2f2f2;
-
-  --ev-c-pink: #E91E65;
-  --ev-c-light-pink: #FCE4EC;
 
   --ev-c-black: #1b1b1f;
   --ev-c-black-soft: #222222;
@@ -27,11 +34,9 @@
 }
 
 :root {
-  --color-background: var(--ev-c-light-pink);
+  --color-background: var(--background);
   --color-background-soft: var(--ev-c-black-soft);
   --color-background-mute: var(--ev-c-black-mute);
-
-  --color-text: var(--ev-c-pink);
 }
 
 *,

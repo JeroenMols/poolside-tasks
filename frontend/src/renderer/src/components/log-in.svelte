@@ -36,7 +36,7 @@
   }
 </script>
 
-<div class="login-container">
+<div class="card">
   <h1>Tasks</h1>
   <input bind:value={name} type="text" placeholder="Enter your name" />
   <button on:click={() => register()}>Create account</button>
@@ -44,16 +44,9 @@
 </div>
 
 <style>
-  :root {
-    --primary: #e91e65;
-    --primary-hover: #d0175b;
-    --white: #ffffff;
-    --light-gray: #cccccc;
-    --dark-gray: #333333;
-    --background: #fce4ec;
-  }
+  @import '../assets/base.css';
 
-  .login-container {
+  .card {
     background: var(--white);
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -61,12 +54,12 @@
     width: 350px;
     text-align: center;
   }
-  .login-container h1 {
+  .card h1 {
     font-weight: 600;
     margin-bottom: 20px;
     color: var(--primary);
   }
-  .login-container input[type='text'] {
+  .card input[type='text'] {
     width: 100%;
     padding: 10px;
     margin: 10px 0;
@@ -74,9 +67,9 @@
     border-radius: 4px;
     font-size: 16px;
   }
-  .login-container button {
+  .card button {
     background-color: var(--primary);
-    color: white;
+    color: var(--white);
     padding: 10px 15px;
     border: none;
     border-radius: 4px;
@@ -84,12 +77,17 @@
     cursor: pointer;
     width: 100%;
   }
-  .login-container button:hover {
+  .card button:hover {
     background-color: var(--primary-hover);
   }
-  .login-container .footer {
+  .card .footer {
     margin-top: 20px;
     font-size: 14px;
+    color: var(--dark-gray);
+  }
+
+  p {
+    margin: 20px;
     color: var(--dark-gray);
   }
 </style>
