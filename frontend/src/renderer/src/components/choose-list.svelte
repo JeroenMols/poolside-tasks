@@ -1,10 +1,12 @@
 <script lang="ts">
   import { ensureNonEmpty } from '../utils/assertions'
+  import ErrorBanner from './error-banner.svelte'
 
   export let accessToken: string = ''
   export let onListSelected: (list: string) => void
 
   let todoListId = ''
+  let errorMessage = ''
 
   const createList = async () => {
     let response = await fetch('http://localhost:8080/todolists', {
@@ -18,7 +20,8 @@
       ensureNonEmpty(registerResponse.todo_list_id)
       onListSelected(registerResponse.todo_list_id)
     } else {
-      alert(`Failed to create todo list - backend error (${response.status})`)
+      let error = await response.text()
+      errorMessage = `Failed to create todo list (${error})`
     }
   }
 
@@ -31,11 +34,18 @@
     if (response.ok) {
       onListSelected(todoListId)
     } else {
-      alert(`Failed to get todo list - backend error (${response.status})`)
+      let error = await response.text()
+      errorMessage = `Failed to join todo list (${error})`
     }
+  }
+
+  const onDismissError = () => {
+    errorMessage = ''
+    todoListId = ''
   }
 </script>
 
+<ErrorBanner {errorMessage} {onDismissError} />
 <div class="card">
   <h1>Choose a list</h1>
   <input bind:value={todoListId} type="text" placeholder="join existing list" />

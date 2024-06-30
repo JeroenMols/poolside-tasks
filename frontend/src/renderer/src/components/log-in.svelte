@@ -1,10 +1,17 @@
 <script lang="ts">
   import { ensureNonEmpty } from '../utils/assertions'
+  import ErrorBanner from './error-banner.svelte'
 
   let name = ''
+  let errorMessage = ''
   export let onLogIn: (accessToken: string) => void
 
   const register = async () => {
+    if (name.length < 5) {
+      errorMessage = 'Name must be at least 5 characters long'
+      return
+    }
+
     // TODO prevent SQL injection here
     let response = await fetch('http://localhost:8080/users/register', {
       method: 'POST',
@@ -16,7 +23,8 @@
       ensureNonEmpty(registerResponse.account_number)
       await login(registerResponse.account_number)
     } else {
-      alert(`Failed to register - backend error (${response.status})`)
+      let error = await response.text()
+      errorMessage = `Failed to register user (${error})`
     }
   }
 
@@ -31,10 +39,18 @@
       ensureNonEmpty(loginResponse.access_token)
       onLogIn(loginResponse.access_token)
     } else {
-      alert(`Failed to login - backend error (${response.status})`)
+      let error = await response.text()
+      errorMessage = `Failed to log in (${error})`
     }
   }
+
+  const onDismissError = () => {
+    errorMessage = ''
+    name = ''
+  }
 </script>
+
+<ErrorBanner {errorMessage} {onDismissError} />
 
 <div class="card">
   <h1>Tasks</h1>
