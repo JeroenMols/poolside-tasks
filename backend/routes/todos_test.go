@@ -25,7 +25,8 @@ func TestTodo_CreateValidations(t *testing.T) {
 	const existingAccount = "f2d869a8-e5bc-4fbf-ad71-0000000000000"
 	const validAccessToken = "f2d869a8-e5bc-4fbf-ad71-222222222222"
 	const nonExistingAccessToken = "f2d869a8-e5bc-4fbf-ad71-333333333333"
-	const existingList = "f2d869a8-e5bc-4fbf-ad71-444444444444"
+	const existingTodoListId = "f2d869a8-e5bc-4fbf-ad71-444444444444"
+	const nonExistingTodoListId = "f2d869a8-e5bc-4fbf-ad71-555555555555"
 
 	tests := []createListTestCase{
 		{
@@ -39,7 +40,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 			description: "Access token does not exist",
 			body: fmt.Sprintf(
 				`{"access_token":"%s", "description":"%s", "todo_list_id": "%s"}`,
-				nonExistingAccessToken, "fake_description", existingList),
+				nonExistingAccessToken, "fake_description", existingTodoListId),
 			responseCode:  http.StatusUnauthorized,
 			responseBody:  `{"error":"account not found"}`,
 			databaseLists: make(map[string][]models.TodoItem),
@@ -47,7 +48,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 		{
 			description: "Description too long",
 			body: fmt.Sprintf(`{"access_token":"%s", "description":"%s", "todo_list_id":"%s"}`,
-				validAccessToken, strings.Repeat("a", 257), existingList),
+				validAccessToken, strings.Repeat("a", 257), existingTodoListId),
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid description"}`,
 			databaseLists: make(map[string][]models.TodoItem),
@@ -55,7 +56,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 		{
 			description: "Description invalid characters",
 			body: fmt.Sprintf(`{"access_token":"%s", "description":"%s", "todo_list_id":"%s"}`,
-				validAccessToken, "/", existingList),
+				validAccessToken, "/", existingTodoListId),
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid description"}`,
 			databaseLists: make(map[string][]models.TodoItem),
@@ -66,6 +67,14 @@ func TestTodo_CreateValidations(t *testing.T) {
 				validAccessToken, "description", "not-a-uuid"),
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid todo list"}`,
+			databaseLists: make(map[string][]models.TodoItem),
+		},
+		{
+			description: "Todo list does not exist",
+			body: fmt.Sprintf(`{"access_token":"%s", "description":"%s", "todo_list_id":"%s"}`,
+				validAccessToken, "description", nonExistingTodoListId),
+			responseCode:  http.StatusBadRequest,
+			responseBody:  `{"error":"todo list does not exist"}`,
 			databaseLists: make(map[string][]models.TodoItem),
 		},
 	}

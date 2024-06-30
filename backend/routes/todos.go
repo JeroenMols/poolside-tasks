@@ -41,7 +41,7 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 
 	todoList := t.Database.TodoLists[body.ListId]
 	if todoList == nil {
-		net.HaltBadRequest(w, "Todo list not found")
+		net.HaltBadRequest(w, "todo list does not exist")
 		return
 	}
 
