@@ -97,7 +97,7 @@ func TestUsers_Login(t *testing.T) {
 			body:           fmt.Sprintf(`{"account_number":"%s"}`, existingAccount),
 			responseCode:   http.StatusOK,
 			responseBody:   `{"access_token":"static_uuid"}`,
-			databaseTokens: map[string]string{existingAccount: "static_uuid"},
+			databaseTokens: map[string]string{"static_uuid": existingAccount},
 		},
 		{
 			description:    "Invalid body",

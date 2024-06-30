@@ -60,7 +60,7 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Account number: %s\n", user.AccountNumber)
 	accessToken := u.GenerateUuid()
-	u.Database.AccessTokens[user.AccountNumber] = accessToken
+	u.Database.AccessTokens[accessToken] = user.AccountNumber
 	response := loginResponse{
 		AccessToken: accessToken,
 	}
