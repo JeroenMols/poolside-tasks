@@ -8,11 +8,13 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"time"
 )
 
 type Todos struct {
 	Database     db.Database
 	GenerateUuid util.GenerateUuid
+	CurrentTime  util.CurrentTime
 }
 
 func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
@@ -38,11 +40,32 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	listId := t.GenerateUuid()
-	fmt.Printf("Creating new todo list %s\n", listId)
-	t.Database.TodoLists[listId] = []db.TodoItem{}
+	if !regexp.MustCompile(listIdRegex).MatchString(body.ListId) {
+		net.HaltUnauthorized(w, "invalid access token")
+		return
+	}
 
-	net.Success(w, listCreateResponse{TodoListId: listId})
+	todoList := t.Database.TodoLists[body.ListId]
+	if todoList == nil {
+		net.HaltBadRequest(w, "Todo list not found")
+		return
+	}
+
+	item := models.TodoItem{
+		Description: body.Description,
+		Status:      "todo",
+		User:        accountNumber,
+		UpdatedAt:   t.CurrentTime(),
+	}
+	fmt.Printf("Creating new todo %s\n", item.Description)
+	t.Database.TodoLists[body.ListId] = append(todoList, item)
+
+	net.Success(w, todoCreateResponse{
+		CreatedBy:   t.Database.Users[accountNumber],
+		Description: item.Description,
+		Status:      item.Status,
+		UpdatedAt:   item.UpdatedAt.Format(time.RFC3339),
+	})
 }
 
 func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
@@ -56,4 +79,8 @@ type todoCreateRequest struct {
 }
 
 type todoCreateResponse struct {
+	CreatedBy   string `json:"created_by"`
+	Description string `json:"description"`
+	Status      string `json:"status"`
+	UpdatedAt   string `json:"updated_at"`
 }

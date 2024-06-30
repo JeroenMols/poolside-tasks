@@ -23,6 +23,7 @@ func main() {
 	todos := routes.Todos{
 		Database:     database,
 		GenerateUuid: util.GenerateRandomUuid,
+		CurrentTime:  util.GetCurrentTime,
 	}
 
 	mux.HandleFunc("POST /users/register", users.Register)
