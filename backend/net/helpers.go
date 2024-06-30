@@ -25,6 +25,13 @@ func HaltBadRequest(w http.ResponseWriter, error string) {
 	_, _ = w.Write(response)
 }
 
+func HaltUnauthorized(w http.ResponseWriter, error string) {
+	addCorsResponseHeaders(w)
+	w.WriteHeader(http.StatusUnauthorized)
+	response, _ := json.Marshal(Error{Error: error})
+	_, _ = w.Write(response)
+}
+
 func ParseBody[K any](r *http.Request) (*K, error) {
 	var result K
 	decoder := json.NewDecoder(r.Body)
