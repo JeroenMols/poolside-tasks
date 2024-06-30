@@ -9,14 +9,12 @@ import (
 )
 
 type Users struct {
-	Database           db.Database
-	AddResponseHeaders net.AddResponseHeaders
-	GenerateUuid       util.GenerateUuid
+	Database     db.Database
+	GenerateUuid util.GenerateUuid
 }
 
 func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Registering new user")
-	u.AddResponseHeaders(w)
 
 	user, err := net.ParseBody[usersRegisterRequest](r)
 	if err != nil {
@@ -38,7 +36,6 @@ func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 
 func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Logging in user")
-	u.AddResponseHeaders(w)
 
 	user, err := net.ParseBody[usersLoginRequest](r)
 	if err != nil {

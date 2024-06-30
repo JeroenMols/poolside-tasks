@@ -8,16 +8,18 @@ import (
 )
 
 type Error struct {
-	Error string `json:"error"`
+	Error string `json:"error,omitempty"`
 }
 
 func Success[K any](w http.ResponseWriter, result K) {
+	addCorsResponseHeaders(w)
 	w.WriteHeader(http.StatusOK)
 	response, _ := json.Marshal(result)
 	_, _ = w.Write(response)
 }
 
 func Halt(w http.ResponseWriter, error string) {
+	addCorsResponseHeaders(w)
 	w.WriteHeader(http.StatusBadRequest)
 	response, _ := json.Marshal(Error{Error: error})
 	_, _ = w.Write(response)
@@ -39,4 +41,9 @@ func ParseBody[K any](r *http.Request) (K, error) {
 	}
 
 	return result, nil
+}
+
+func addCorsResponseHeaders(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"backend/db"
-	"backend/net"
 	"backend/routes"
 	"backend/util"
 	"fmt"
@@ -14,14 +13,12 @@ func main() {
 	database := db.InMemoryDatabase()
 
 	users := routes.Users{
-		Database:           database,
-		AddResponseHeaders: net.AddCorsReponseHeaders,
-		GenerateUuid:       util.GenerateRandomUuid,
+		Database:     database,
+		GenerateUuid: util.GenerateRandomUuid,
 	}
 	todoLists := routes.TodoLists{
-		Database:           database,
-		AddResponseHeaders: net.AddCorsReponseHeaders,
-		GenerateUuid:       util.GenerateRandomUuid,
+		Database:     database,
+		GenerateUuid: util.GenerateRandomUuid,
 	}
 
 	mux.HandleFunc("POST /users/register", users.Register)
@@ -31,8 +28,7 @@ func main() {
 
 	// Debug route
 	debug := routes.Debug{
-		Database:           database,
-		AddResponseHeaders: net.AddCorsReponseHeaders,
+		Database: database,
 	}
 	mux.HandleFunc("GET /debug", debug.Debug)
 

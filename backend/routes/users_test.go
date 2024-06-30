@@ -61,8 +61,7 @@ func TestUsers_Register(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			database := db.InMemoryDatabase()
 			users := Users{
-				Database:           database,
-				AddResponseHeaders: func(w http.ResponseWriter) {},
+				Database: database,
 				GenerateUuid: func() string {
 					return "static_uuid"
 				},
@@ -132,8 +131,7 @@ func TestUsers_Login(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			database := db.InMemoryDatabase()
 			users := Users{
-				Database:           database,
-				AddResponseHeaders: func(w http.ResponseWriter) {},
+				Database: database,
 				GenerateUuid: func() string {
 					return "static_uuid"
 				},
