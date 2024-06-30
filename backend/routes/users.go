@@ -6,6 +6,7 @@ import (
 	"backend/util"
 	"fmt"
 	"net/http"
+	"regexp"
 )
 
 type Users struct {
@@ -22,13 +23,16 @@ func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: validate user name (forbidden chars, length, etc)
+	if !regexp.MustCompile(`^[a-zA-Z0-9 ]{5,32}$`).MatchString(user.Name) {
+		net.Halt(w, "invalid user name")
+		return
+	}
 
 	fmt.Printf("User name: %s\n", user.Name)
-	account_number := u.GenerateUuid()
-	u.Database.Users[account_number] = user.Name
+	accountNumber := u.GenerateUuid()
+	u.Database.Users[accountNumber] = user.Name
 	response := usersRegisterResponse{
-		AccountNumber: account_number,
+		AccountNumber: accountNumber,
 	}
 
 	net.Success(w, response)

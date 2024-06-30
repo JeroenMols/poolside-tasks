@@ -22,16 +22,37 @@ func TestUsers_Register(t *testing.T) {
 	tests := []registerTestCase{
 		{
 			description:   "Valid body",
-			body:          "{\"name\":\"myname\"}",
+			body:          `{"name":"myname"}`,
 			responseCode:  http.StatusOK,
-			responseBody:  "{\"account_number\":\"static_uuid\"}",
+			responseBody:  `{"account_number":"static_uuid"}`,
 			databaseUsers: map[string]string{"static_uuid": "myname"},
 		},
 		{
 			description:   "Invalid body",
-			body:          "{\"invalid\":\"body\"}",
+			body:          `{"invalid":"body"}`,
 			responseCode:  http.StatusBadRequest,
-			responseBody:  "{\"error\":\"invalid body\"}",
+			responseBody:  `{"error":"invalid body"}`,
+			databaseUsers: make(map[string]string),
+		},
+		{
+			description:   "User name too short",
+			body:          `{"name":"s"}`,
+			responseCode:  http.StatusBadRequest,
+			responseBody:  `{"error":"invalid user name"}`,
+			databaseUsers: make(map[string]string),
+		},
+		{
+			description:   "User name invalid character",
+			body:          `{"name":"name-%*("}`,
+			responseCode:  http.StatusBadRequest,
+			responseBody:  `{"error":"invalid user name"}`,
+			databaseUsers: make(map[string]string),
+		},
+		{
+			description:   "User name too long",
+			body:          `{"name":"testtesttesttesttesttesttesttest1"}`,
+			responseCode:  http.StatusBadRequest,
+			responseBody:  `{"error":"invalid user name"}`,
 			databaseUsers: make(map[string]string),
 		},
 	}
