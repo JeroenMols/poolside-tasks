@@ -222,13 +222,13 @@
   }
 
   .secondary-button:active {
-    background-color: #ff69b4; /* Darker shade of pink for active state */
+    background-color: #ff69b4;
     color: var(--white);
     border-color: var(--primary);
   }
 
   .secondary-button:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(255, 182, 193, 0.5); /* Light pink outline for focus */
+    box-shadow: 0 0 0 3px var(--background);
   }
 </style>
