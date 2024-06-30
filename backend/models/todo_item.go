@@ -17,3 +17,21 @@ type TodoItem struct {
 	Status      string `json:"status"`
 	UpdatedAt   string `json:"updated_at"`
 }
+
+func (t *TodoDatabaseItem) ChangeStatus(newStatus string) error {
+	if t.Status == "todo" || t.Status == "done" {
+		if newStatus == "ongoing" {
+			t.Status = newStatus
+			return nil
+		}
+		return errors.New(fmt.Sprintf("invalid status transition from %s to %s", t.Status, newStatus))
+	} else if t.Status == "ongoing" {
+		if newStatus == "done" || newStatus == "todo" {
+			t.Status = newStatus
+			return nil
+		}
+		return errors.New(fmt.Sprintf("invalid status transition from %s to %s", t.Status, newStatus))
+	}
+	return errors.New(fmt.Sprintf("invalid status transition from %s to %s", t.Status, newStatus))
+}
+
