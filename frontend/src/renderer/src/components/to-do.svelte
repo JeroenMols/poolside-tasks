@@ -1,11 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import ErrorBanner from './error-banner.svelte'
 
   export let accessToken: string = ''
   export let todoListId: string = ''
 
   let todos: TodoItem[] = []
   let newTodoDescription = ''
+  let errorMessage = ''
 
   onMount(async () => {
     await getTodosForList()
@@ -39,10 +41,53 @@
       newTodoDescription = ''
       todos = [...todos, item]
     } else {
-      alert(`Failed to create todo list - backend error (${response.status})`)
+      const error = await response.text()
+      errorMessage = `Failed to create todo (${error})`
     }
   }
+
+  const updateTodo = async (todo: TodoItem, newStatus: TodoStatus) => {
+    let response = await fetch(`http://localhost:8080/todos/${todo.id}`, {
+      headers: { Authorization: `${accessToken}` },
+      method: 'PUT',
+      body: JSON.stringify({ status: newStatus })
+    })
+
+    if (response.ok) {
+      const item = (await response.json()) as TodoItem
+      // TODO validate result here
+      newTodoDescription = ''
+      todos = [...todos, item]
+    } else {
+      const error = await response.text()
+      errorMessage = `Failed to update todo (${error})`
+    }
+
+    await getTodosForList()
+  }
+
+  const prevStatus = async (todo: TodoItem) => {
+    const allowedStatus: TodoStatus[] = ['todo', 'ongoing', 'done']
+    const previousStatus =
+      allowedStatus[
+        (allowedStatus.indexOf(todo.status) + allowedStatus.length - 1) % allowedStatus.length
+      ]
+    await updateTodo(todo, previousStatus)
+  }
+  const nextStatus = async (todo: TodoItem) => {
+    const allowedStatus: TodoStatus[] = ['todo', 'ongoing', 'done']
+    const nextStatus =
+      allowedStatus[(allowedStatus.indexOf(todo.status) + 1) % allowedStatus.length]
+    await updateTodo(todo, nextStatus)
+  }
+
+  const onDismissError = () => {
+    errorMessage = ''
+    newTodoDescription = ''
+  }
 </script>
+
+<ErrorBanner {errorMessage} {onDismissError} />
 
 {#if todos.length == 0}
   <h1>Nothing to do</h1>
@@ -57,7 +102,13 @@
             <h2>{todo.description}</h2>
             <small>Last updated: {todo.updated_at}</small>
           </div>
-          <span class="status {todo.status}">{todo.status}</span>
+          <div>
+            <span class="status {todo.status}">{todo.status}</span>
+            <div>
+              <button class="secondary-button" on:click={() => prevStatus(todo)}>prev</button>
+              <button class="secondary-button" on:click={() => nextStatus(todo)}>next</button>
+            </div>
+          </div>
         </div>
       </li>
     {/each}
@@ -106,14 +157,17 @@
     display: inline-block;
     padding: 5px 10px;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 1.2em;
     color: var(--white);
+    text-align: center;
+    width: 100%;
+    margin-bottom: 10px;
   }
   .status.todo {
     background-color: var(--status-todo);
   }
   .status.ongoing {
-    background-color: var(--status-progress);
+    background-color: var(--status-ongoing);
   }
   .status.done {
     background-color: var(--status-done);
@@ -146,5 +200,35 @@
   }
   .new-task button:hover {
     background-color: var(--primary-hover);
+  }
+  .secondary-button {
+    background-color: var(--white);
+    color: var(--acc);
+    border: 2px solid var(--primary);
+    padding: 3px 20px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition:
+      background-color 0.3s,
+      color 0.3s,
+      border-color 0.3s;
+  }
+
+  .secondary-button:hover {
+    background-color: var(--primary);
+    color: var(--white);
+    border-color: var(--white);
+  }
+
+  .secondary-button:active {
+    background-color: #ff69b4; /* Darker shade of pink for active state */
+    color: var(--white);
+    border-color: var(--primary);
+  }
+
+  .secondary-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 182, 193, 0.5); /* Light pink outline for focus */
   }
 </style>

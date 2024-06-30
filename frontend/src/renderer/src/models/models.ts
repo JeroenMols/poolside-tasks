@@ -15,8 +15,11 @@ type TodoListReponses = {
 }
 
 type TodoItem = {
+    id: string
     created_by: string
     description: string
-    status: string
+    status: TodoStatus
     updated_at: string
 }
+
+type TodoStatus = 'todo' | 'ongoing' | 'done'
