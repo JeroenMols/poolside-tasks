@@ -62,10 +62,8 @@ func TestUsers_Register(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			database := db.InMemoryDatabase()
 			users := Users{
-				Database: database,
-				GenerateUuid: func() string {
-					return "static_uuid"
-				},
+				Database:     database,
+				GenerateUuid: func() string { return "static_uuid" },
 			}
 
 			request := httptest.NewRequest(http.MethodGet, "/users/register", strings.NewReader(tt.body))
