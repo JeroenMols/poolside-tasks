@@ -9,14 +9,14 @@ import (
 type Database struct {
 	Users        map[string]string
 	AccessTokens map[string]string
-	TodoLists    map[string][]models.TodoItem
+	TodoLists    map[string][]models.TodoDatabaseItem
 }
 
 func InMemoryDatabase() Database {
 	return Database{
 		Users:        make(map[string]string),
 		AccessTokens: make(map[string]string),
-		TodoLists:    make(map[string][]models.TodoItem),
+		TodoLists:    make(map[string][]models.TodoDatabaseItem),
 	}
 }
 
@@ -34,7 +34,7 @@ func (d *Database) Authorize(accessToken string) (*string, error) {
 	return &accountNumber, nil
 }
 
-func (d *Database) GetTodos(listId string) (*[]models.TodoItem, error) {
+func (d *Database) GetTodos(listId string) (*[]models.TodoDatabaseItem, error) {
 	if !regexp.MustCompile(listIdRegex).MatchString(listId) {
 		return nil, errors.New("invalid todo list")
 	}

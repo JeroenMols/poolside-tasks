@@ -17,7 +17,7 @@ type createTodoTestCase struct {
 	body          string
 	responseCode  int
 	responseBody  string
-	databaseLists map[string][]models.TodoItem
+	databaseLists map[string][]models.TodoDatabaseItem
 }
 
 func TestTodo_CreateValidations(t *testing.T) {
@@ -34,7 +34,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 			body:          `{"invalid":"body"}`,
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid body"}`,
-			databaseLists: make(map[string][]models.TodoItem),
+			databaseLists: make(map[string][]models.TodoDatabaseItem),
 		},
 		{
 			description: "Access token does not exist",
@@ -43,7 +43,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 				nonExistingAccessToken, "fake_description", existingTodoListId),
 			responseCode:  http.StatusUnauthorized,
 			responseBody:  `{"error":"account not found"}`,
-			databaseLists: make(map[string][]models.TodoItem),
+			databaseLists: make(map[string][]models.TodoDatabaseItem),
 		},
 		{
 			description: "Description too long",
@@ -51,7 +51,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 				validAccessToken, strings.Repeat("a", 257), existingTodoListId),
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid description"}`,
-			databaseLists: make(map[string][]models.TodoItem),
+			databaseLists: make(map[string][]models.TodoDatabaseItem),
 		},
 		{
 			description: "Description invalid characters",
@@ -59,7 +59,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 				validAccessToken, "/", existingTodoListId),
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid description"}`,
-			databaseLists: make(map[string][]models.TodoItem),
+			databaseLists: make(map[string][]models.TodoDatabaseItem),
 		},
 		{
 			description: "Todo list Id invalid",
@@ -67,7 +67,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 				validAccessToken, "description", "not-a-uuid"),
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid todo list"}`,
-			databaseLists: make(map[string][]models.TodoItem),
+			databaseLists: make(map[string][]models.TodoDatabaseItem),
 		},
 		{
 			description: "Todo list does not exist",
@@ -75,7 +75,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 				validAccessToken, "description", nonExistingTodoListId),
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"todo list does not exist"}`,
-			databaseLists: make(map[string][]models.TodoItem),
+			databaseLists: make(map[string][]models.TodoDatabaseItem),
 		},
 	}
 
@@ -117,8 +117,8 @@ func TestTodo_CreateLogic(t *testing.T) {
 				validAccessToken, "test todo", existingList),
 			responseCode: http.StatusOK,
 			responseBody: `{"created_by":"","description":"test todo","status":"todo","updated_at":"2024-06-30T00:00:00+00:00"}`,
-			databaseLists: map[string][]models.TodoItem{
-				existingList: {models.TodoItem{
+			databaseLists: map[string][]models.TodoDatabaseItem{
+				existingList: {models.TodoDatabaseItem{
 					Description: "test todo",
 					Status:      "todo",
 					User:        existingAccount,
@@ -132,7 +132,7 @@ func TestTodo_CreateLogic(t *testing.T) {
 				validAccessToken, "test todo", nonExistingList),
 			responseCode: http.StatusBadRequest,
 			responseBody: `{"error":"todo list does not exist"}`,
-			databaseLists: map[string][]models.TodoItem{
+			databaseLists: map[string][]models.TodoDatabaseItem{
 				existingList: {},
 			},
 		},
@@ -142,7 +142,7 @@ func TestTodo_CreateLogic(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			database := db.InMemoryDatabase()
 			database.AccessTokens[validAccessToken] = existingAccount
-			database.TodoLists[existingList] = []models.TodoItem{}
+			database.TodoLists[existingList] = []models.TodoDatabaseItem{}
 
 			todos := Todos{
 				Database:     database,

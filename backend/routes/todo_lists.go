@@ -7,6 +7,7 @@ import (
 	"backend/util"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 type TodoLists struct {
@@ -27,14 +28,33 @@ func (t *TodoLists) Create(w http.ResponseWriter, r *http.Request) {
 
 	listId := t.GenerateUuid()
 	fmt.Printf("Creating new todo list %s\n", listId)
-	t.Database.TodoLists[listId] = []models.TodoItem{}
+	t.Database.TodoLists[listId] = []models.TodoDatabaseItem{}
 
 	net.Success(w, listCreateResponse{TodoListId: listId})
 }
 
 func (t *TodoLists) Get(w http.ResponseWriter, r *http.Request) {
+	// TODO move access token to header
+
 	listId := r.PathValue("list_id")
-	net.Success(w, "Returning todo list "+listId)
+
+	todos, err := t.Database.GetTodos(listId)
+	if err != nil {
+		net.HaltBadRequest(w, err.Error())
+		return
+	}
+
+	formattedTodos := []models.TodoItem{}
+	for _, todo := range *todos {
+		formattedTodos = append(formattedTodos, models.TodoItem{
+			CreatedBy:   t.Database.Users[todo.User],
+			Description: todo.Description,
+			Status:      todo.Status,
+			UpdatedAt:   todo.UpdatedAt.Format(time.RFC3339),
+		})
+	}
+
+	net.Success(w, listGetResponse{Todos: formattedTodos})
 }
 
 type listCreateRequest struct {
@@ -43,4 +63,8 @@ type listCreateRequest struct {
 
 type listCreateResponse struct {
 	TodoListId string `json:"todo_list_id"`
+}
+
+type listGetResponse struct {
+	Todos []models.TodoItem `json:"todos"`
 }

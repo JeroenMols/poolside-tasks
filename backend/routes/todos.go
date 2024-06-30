@@ -40,7 +40,7 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	item := models.TodoItem{
+	item := models.TodoDatabaseItem{
 		Description: body.Description,
 		Status:      "todo",
 		User:        *accountNumber,
@@ -49,7 +49,7 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Creating new todo %s\n", item.Description)
 	t.Database.TodoLists[body.ListId] = append(*todos, item)
 
-	net.Success(w, todoCreateResponse{
+	net.Success(w, models.TodoItem{
 		CreatedBy:   t.Database.Users[*accountNumber],
 		Description: item.Description,
 		Status:      item.Status,
@@ -65,11 +65,4 @@ type todoCreateRequest struct {
 	AccessToken string `json:"access_token" validate:"required"`
 	Description string `json:"description" validate:"required"`
 	ListId      string `json:"todo_list_id" validate:"required"`
-}
-
-type todoCreateResponse struct {
-	CreatedBy   string `json:"created_by"`
-	Description string `json:"description"`
-	Status      string `json:"status"`
-	UpdatedAt   string `json:"updated_at"`
 }
