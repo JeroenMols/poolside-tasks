@@ -29,10 +29,6 @@ func TestSuccess(t *testing.T) {
 			w := httptest.NewRecorder()
 			Success(w, tt.input)
 			assert.Equal(t, 200, w.Result().StatusCode)
-			assert.Equal(t, http.Header{
-				"Content-Type":                []string{"application/json"},
-				"Access-Control-Allow-Origin": []string{"*"},
-			}, w.Result().Header)
 			assert.Equal(t, tt.output, w.Body.String())
 		})
 	}

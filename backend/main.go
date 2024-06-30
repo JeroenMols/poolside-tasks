@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/db"
+	"backend/net"
 	"backend/routes"
 	"backend/util"
 	"fmt"
@@ -41,7 +42,9 @@ func main() {
 	}
 	mux.HandleFunc("GET /debug", debug.Debug)
 
-	err := http.ListenAndServe("localhost:8080", mux)
+	handler := net.CorsMiddleware(mux, "*")
+
+	err := http.ListenAndServe("localhost:8080", handler)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
