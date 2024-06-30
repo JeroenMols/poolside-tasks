@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backend/db"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -89,19 +90,36 @@ type loginTestCase struct {
 
 func TestUsers_Login(t *testing.T) {
 
+	const existingAccount = "f2d869a8-e5bc-4fbf-ad71-e0d154b5d433"
+	const nonExistingAccount = "f2d869a8-e5bc-4fbf-ad71-e0d154b5d434"
+
 	tests := []loginTestCase{
 		{
 			description:    "Valid body",
-			body:           "{\"account_number\":\"my_number\"}",
+			body:           fmt.Sprintf(`{"account_number":"%s"}`, existingAccount),
 			responseCode:   http.StatusOK,
-			responseBody:   "{\"access_token\":\"static_uuid\"}",
-			databaseTokens: map[string]string{"my_number": "static_uuid"},
+			responseBody:   `{"access_token":"static_uuid"}`,
+			databaseTokens: map[string]string{existingAccount: "static_uuid"},
 		},
 		{
 			description:    "Invalid body",
-			body:           "{\"invalid\":\"body\"}",
+			body:           `{"invalid":"body"}`,
 			responseCode:   http.StatusBadRequest,
-			responseBody:   "{\"error\":\"invalid body\"}",
+			responseBody:   `{"error":"invalid body"}`,
+			databaseTokens: make(map[string]string),
+		},
+		{
+			description:    "Account number not a uuid",
+			body:           `{"account_number":"not_a_uuid"}`,
+			responseCode:   http.StatusBadRequest,
+			responseBody:   `{"error":"invalid account number"}`,
+			databaseTokens: make(map[string]string),
+		},
+		{
+			description:    "Account does not exist",
+			body:           fmt.Sprintf(`{"account_number":"%s"}`, nonExistingAccount),
+			responseCode:   http.StatusBadRequest,
+			responseBody:   `{"error":"account not found"}`,
 			databaseTokens: make(map[string]string),
 		},
 	}
@@ -109,6 +127,7 @@ func TestUsers_Login(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
 			database := db.InMemoryDatabase()
+			database.Users[existingAccount] = "myname"
 			users := Users{
 				Database: database,
 				GenerateUuid: func() string {

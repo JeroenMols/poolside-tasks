@@ -14,6 +14,9 @@ type Users struct {
 	GenerateUuid util.GenerateUuid
 }
 
+const accountNumberRegex = `^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$`
+const userNameRegex = `^[a-zA-Z0-9 ]{5,32}$`
+
 func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Registering new user")
 
@@ -23,7 +26,7 @@ func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !regexp.MustCompile(`^[a-zA-Z0-9 ]{5,32}$`).MatchString(user.Name) {
+	if !regexp.MustCompile(userNameRegex).MatchString(user.Name) {
 		net.Halt(w, "invalid user name")
 		return
 	}
@@ -47,7 +50,15 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: check if user exists
+	if !regexp.MustCompile(accountNumberRegex).MatchString(user.AccountNumber) {
+		net.Halt(w, "invalid account number")
+		return
+	}
+
+	if u.Database.Users[user.AccountNumber] == "" {
+		net.Halt(w, "account not found")
+		return
+	}
 	// TODO: return existing token if exists
 
 	fmt.Printf("Account number: %s\n", user.AccountNumber)
