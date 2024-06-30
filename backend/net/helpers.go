@@ -13,23 +13,17 @@ type Error struct {
 
 func Success[K any](w http.ResponseWriter, result K) {
 	addCorsResponseHeaders(w)
-	w.WriteHeader(http.StatusOK)
-	response, _ := json.Marshal(result)
-	_, _ = w.Write(response)
+	writeResponse(w, http.StatusOK, result)
 }
 
 func HaltBadRequest(w http.ResponseWriter, error string) {
 	addCorsResponseHeaders(w)
-	w.WriteHeader(http.StatusBadRequest)
-	response, _ := json.Marshal(Error{Error: error})
-	_, _ = w.Write(response)
+	writeResponse(w, http.StatusBadRequest, Error{Error: error})
 }
 
 func HaltUnauthorized(w http.ResponseWriter, error string) {
 	addCorsResponseHeaders(w)
-	w.WriteHeader(http.StatusUnauthorized)
-	response, _ := json.Marshal(Error{Error: error})
-	_, _ = w.Write(response)
+	writeResponse(w, http.StatusUnauthorized, Error{Error: error})
 }
 
 func ParseBody[K any](r *http.Request) (*K, error) {
@@ -52,6 +46,12 @@ func ParseBody[K any](r *http.Request) (*K, error) {
 	}
 
 	return &result, nil
+}
+
+func writeResponse[K any](w http.ResponseWriter, status int, result K) {
+	w.WriteHeader(status)
+	response, _ := json.Marshal(result)
+	_, _ = w.Write(response)
 }
 
 func addCorsResponseHeaders(w http.ResponseWriter) {
