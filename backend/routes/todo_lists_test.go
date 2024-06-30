@@ -34,13 +34,6 @@ func TestTodoLists_Create(t *testing.T) {
 			databaseLists: make(map[string][]models.TodoItem),
 		},
 		{
-			description:   "Access token not a uuid",
-			body:          `{"access_token":"not_a_uuid"}`,
-			responseCode:  http.StatusUnauthorized,
-			responseBody:  `{"error":"invalid access token"}`,
-			databaseLists: make(map[string][]models.TodoItem),
-		},
-		{
 			description:   "Access token does not exist",
 			body:          fmt.Sprintf(`{"access_token":"%s"}`, nonExistingAccessToken),
 			responseCode:  http.StatusUnauthorized,

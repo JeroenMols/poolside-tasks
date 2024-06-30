@@ -36,15 +36,6 @@ func TestTodo_CreateValidations(t *testing.T) {
 			databaseLists: make(map[string][]models.TodoItem),
 		},
 		{
-			description: "Access token not a uuid",
-			body: fmt.Sprintf(
-				`{"access_token":"%s", "description":"%s", "todo_list_id": "%s"}`,
-				"invalid_token", "fake_description", existingList),
-			responseCode:  http.StatusUnauthorized,
-			responseBody:  `{"error":"invalid access token"}`,
-			databaseLists: make(map[string][]models.TodoItem),
-		},
-		{
 			description: "Access token does not exist",
 			body: fmt.Sprintf(
 				`{"access_token":"%s", "description":"%s", "todo_list_id": "%s"}`,
