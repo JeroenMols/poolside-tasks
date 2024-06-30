@@ -20,7 +20,7 @@ const userNameRegex = `^[a-zA-Z0-9 ]{5,32}$`
 func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Registering new user")
 
-	user, err := net.ParseBody[usersRegisterRequest](r)
+	user, err := net.ParseBody[registerRequest](r)
 	if err != nil {
 		net.Halt(w, err.Error())
 		return
@@ -34,7 +34,7 @@ func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("User name: %s\n", user.Name)
 	accountNumber := u.GenerateUuid()
 	u.Database.Users[accountNumber] = user.Name
-	response := usersRegisterResponse{
+	response := registerResponse{
 		AccountNumber: accountNumber,
 	}
 
@@ -44,7 +44,7 @@ func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Logging in user")
 
-	user, err := net.ParseBody[usersLoginRequest](r)
+	user, err := net.ParseBody[loginRequest](r)
 	if err != nil {
 		net.Halt(w, err.Error())
 		return
@@ -64,25 +64,25 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Account number: %s\n", user.AccountNumber)
 	accessToken := u.GenerateUuid()
 	u.Database.AccessTokens[user.AccountNumber] = accessToken
-	response := usersLoginResponse{
+	response := loginResponse{
 		AccessToken: accessToken,
 	}
 
 	net.Success(w, response)
 }
 
-type usersRegisterRequest struct {
+type registerRequest struct {
 	Name string `json:"name" validate:"required"`
 }
 
-type usersRegisterResponse struct {
+type registerResponse struct {
 	AccountNumber string `json:"account_number"`
 }
 
-type usersLoginRequest struct {
+type loginRequest struct {
 	AccountNumber string `json:"account_number" validate:"required"`
 }
 
-type usersLoginResponse struct {
+type loginResponse struct {
 	AccessToken string `json:"access_token"`
 }
