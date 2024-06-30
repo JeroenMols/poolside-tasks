@@ -19,12 +19,12 @@ func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 
 	user, err := net.ParseBody[registerRequest](r)
 	if err != nil {
-		net.Halt(w, err.Error())
+		net.HaltBadRequest(w, err.Error())
 		return
 	}
 
 	if !regexp.MustCompile(userNameRegex).MatchString(user.Name) {
-		net.Halt(w, "invalid user name")
+		net.HaltBadRequest(w, "invalid user name")
 		return
 	}
 
@@ -43,17 +43,17 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 
 	user, err := net.ParseBody[loginRequest](r)
 	if err != nil {
-		net.Halt(w, err.Error())
+		net.HaltBadRequest(w, err.Error())
 		return
 	}
 
 	if !regexp.MustCompile(accountNumberRegex).MatchString(user.AccountNumber) {
-		net.Halt(w, "invalid account number")
+		net.HaltBadRequest(w, "invalid account number")
 		return
 	}
 
 	if u.Database.Users[user.AccountNumber] == "" {
-		net.Halt(w, "account not found")
+		net.HaltBadRequest(w, "account not found")
 		return
 	}
 	// TODO: return existing token if exists

@@ -18,7 +18,7 @@ func Success[K any](w http.ResponseWriter, result K) {
 	_, _ = w.Write(response)
 }
 
-func Halt(w http.ResponseWriter, error string) {
+func HaltBadRequest(w http.ResponseWriter, error string) {
 	addCorsResponseHeaders(w)
 	w.WriteHeader(http.StatusBadRequest)
 	response, _ := json.Marshal(Error{Error: error})

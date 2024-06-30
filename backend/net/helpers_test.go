@@ -50,7 +50,7 @@ func TestHalt(t *testing.T) {
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("Scenario %d", i), func(t *testing.T) {
 			w := httptest.NewRecorder()
-			Halt(w, tt.input)
+			HaltBadRequest(w, tt.input)
 			assert.Equal(t, 400, w.Result().StatusCode)
 			assert.Equal(t, http.Header{
 				"Content-Type":                []string{"application/json"},
