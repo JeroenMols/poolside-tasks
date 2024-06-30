@@ -3,11 +3,12 @@
   import ChooseList from './components/choose-list.svelte'
   import Todo from './components/to-do.svelte'
 
-  let accessToken: string | null = null
+  let accessToken: string | null = localStorage.getItem('access_token')
   let todoList: string | null = null
 
   const onLogIn = (token: string) => {
     console.log('Received token:', token)
+    localStorage.setItem('access_token', token)
     accessToken = token
   }
   const onListSelected = (list: string) => {

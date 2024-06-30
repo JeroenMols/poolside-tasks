@@ -39,6 +39,11 @@
     }
   }
 
+  const logOut = () => {
+    localStorage.removeItem('access_token')
+    location.reload()
+  }
+
   const onDismissError = () => {
     errorMessage = ''
     todoListId = ''
@@ -54,6 +59,9 @@
   <p>Or</p>
 
   <button on:click={() => createList()}>create new</button>
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+  <p class="logout" on:click={() => logOut()}>logout</p>
 </div>
 
 <style>
@@ -101,5 +109,10 @@
 
   p {
     margin: 20px;
+  }
+
+  .logout:hover {
+    color: var(--primary);
+    border-color: var(--white);
   }
 </style>
