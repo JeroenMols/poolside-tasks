@@ -67,6 +67,7 @@ type listCreateResponse struct {
 	TodoListId string `json:"todo_list_id"`
 }
 
+// TODO include the todo list id here
 type listGetResponse struct {
 	Todos []models.TodoItem `json:"todos"`
 }
