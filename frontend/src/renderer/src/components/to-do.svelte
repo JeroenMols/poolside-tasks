@@ -100,7 +100,7 @@
         <div class="task-header">
           <div>
             <h2>{todo.description}</h2>
-            <small>Last updated: {todo.updated_at}</small>
+            <small>Created by: {todo.created_by}, last updated: {todo.updated_at}</small>
           </div>
           <div>
             <span class="status {todo.status}">{todo.status}</span>
