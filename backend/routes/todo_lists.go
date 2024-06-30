@@ -50,6 +50,7 @@ func (t *TodoLists) Get(w http.ResponseWriter, r *http.Request) {
 	formattedTodos := []models.TodoItem{}
 	for _, todo := range *todos {
 		formattedTodos = append(formattedTodos, models.TodoItem{
+			Id:          todo.Id,
 			CreatedBy:   t.Database.Users[todo.User],
 			Description: todo.Description,
 			Status:      todo.Status,

@@ -1,10 +1,10 @@
 package models
 
 import (
+	"backend/util"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"time"
 )
 
 func TestTodoItem_ChangeStatus(t *testing.T) {
@@ -55,13 +55,14 @@ func TestTodoItem_ChangeStatus(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("from %s to %s", tt.oldStatus, tt.newStatus), func(t *testing.T) {
 			item := TodoDatabaseItem{
-				UpdatedAt:   time.Now(),
+				Id:          "fake_id",
+				UpdatedAt:   util.FakeTime(2021, 1, 1),
 				Description: "fake description",
 				Status:      tt.oldStatus,
 				User:        "fake_user",
 			}
 
-			err := item.ChangeStatus(tt.newStatus)
+			err := item.ChangeStatus(tt.newStatus, util.FakeTime(2024, 6, 1))
 			if err != nil || tt.error {
 				expected := fmt.Sprintf("invalid status transition from %s to %s", tt.oldStatus, tt.newStatus)
 				assert.Equal(t, expected, err.Error())

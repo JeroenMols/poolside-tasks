@@ -34,7 +34,7 @@ func main() {
 	mux.HandleFunc("GET /todolists/{list_id}", todoLists.Get)
 
 	mux.HandleFunc("POST /todos", todos.Create)
-	mux.HandleFunc("PUT /todos", todos.Update)
+	mux.HandleFunc("PUT /todos/{todo_id}", todos.Update)
 
 	// Debug route
 	debug := routes.Debug{

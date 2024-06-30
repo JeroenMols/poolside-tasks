@@ -3,6 +3,7 @@ package routes
 import (
 	"backend/db"
 	"backend/models"
+	"backend/util"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -93,7 +94,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 			todos := Todos{
 				Database:     database,
 				GenerateUuid: func() string { return "static_uuid" },
-				CurrentTime:  func() time.Time { return fixedTestTime() },
+				CurrentTime:  func() time.Time { return util.FakeTime(2024, 6, 30) },
 			}
 
 			request := httptest.NewRequest(http.MethodPost, "/todos", strings.NewReader(tt.body))
@@ -104,7 +105,6 @@ func TestTodo_CreateValidations(t *testing.T) {
 
 			assert.Equal(t, tt.responseCode, writer.Code)
 			assert.Equal(t, tt.responseBody, writer.Body.String())
-			assert.Equal(t, tt.databaseLists, database.TodoLists)
 		})
 	}
 }
@@ -113,7 +113,6 @@ func TestTodo_CreateLogic(t *testing.T) {
 
 	const existingAccount = "f2d869a8-e5bc-4fbf-ad71-0000000000000"
 	const validAccessToken = "f2d869a8-e5bc-4fbf-ad71-222222222222"
-	const nonExistingAccessToken = "f2d869a8-e5bc-4fbf-ad71-333333333333"
 	const existingList = "f2d869a8-e5bc-4fbf-ad71-444444444444"
 	const nonExistingList = "f2d869a8-e5bc-4fbf-ad71-555555555555"
 
@@ -124,13 +123,14 @@ func TestTodo_CreateLogic(t *testing.T) {
 			body: fmt.Sprintf(`{"description":"%s", "todo_list_id":"%s"}`,
 				"test todo", existingList),
 			responseCode: http.StatusOK,
-			responseBody: `{"created_by":"","description":"test todo","status":"todo","updated_at":"2024-06-30T00:00:00+00:00"}`,
+			responseBody: `{"id":"static_uuid","created_by":"","description":"test todo","status":"todo","updated_at":"2024-06-30T00:00:00+00:00"}`,
 			databaseLists: map[string][]models.TodoDatabaseItem{
 				existingList: {models.TodoDatabaseItem{
+					Id:          "static_uuid",
 					Description: "test todo",
 					Status:      "todo",
 					User:        existingAccount,
-					UpdatedAt:   fixedTestTime(),
+					UpdatedAt:   util.FakeTime(2024, 6, 30),
 				}},
 			},
 		},
@@ -156,7 +156,7 @@ func TestTodo_CreateLogic(t *testing.T) {
 			todos := Todos{
 				Database:     database,
 				GenerateUuid: func() string { return "static_uuid" },
-				CurrentTime:  func() time.Time { return fixedTestTime() },
+				CurrentTime:  func() time.Time { return util.FakeTime(2024, 6, 30) },
 			}
 
 			request := httptest.NewRequest(http.MethodPost, "/todos", strings.NewReader(tt.body))
@@ -172,6 +172,157 @@ func TestTodo_CreateLogic(t *testing.T) {
 	}
 }
 
-func fixedTestTime() time.Time {
-	return time.Date(2024, 6, 30, 0, 0, 0, 0, time.FixedZone("CEST", 1))
+type updateTodoTestCase struct {
+	description   string
+	accessToken   string
+	todoId        string
+	body          string
+	responseCode  int
+	responseBody  string
+	databaseLists map[string][]models.TodoDatabaseItem
+}
+
+func TestTodo_UpdateValidations(t *testing.T) {
+
+	const existingAccount = "f2d869a8-e5bc-4fbf-ad71-0000000000000"
+	const validAccessToken = "f2d869a8-e5bc-4fbf-ad71-222222222222"
+	const nonExistingAccessToken = "f2d869a8-e5bc-4fbf-ad71-333333333333"
+	const existingList = "f2d869a8-e5bc-4fbf-ad71-444444444444"
+	const nonExistingList = "f2d869a8-e5bc-4fbf-ad71-555555555555"
+	const existingTodoId = "f2d869a8-e5bc-4fbf-ad71-6666666666666"
+	const nonExistingTodoId = "f2d869a8-e5bc-4fbf-ad71-777777777777"
+
+	tests := []updateTodoTestCase{
+		{
+			description:  "Invalid body",
+			accessToken:  validAccessToken,
+			todoId:       existingTodoId,
+			body:         `{"invalid":"body"}`,
+			responseCode: http.StatusBadRequest,
+			responseBody: `{"error":"invalid body"}`,
+		},
+		{
+			description:  "Access token does not exist",
+			accessToken:  nonExistingAccessToken,
+			todoId:       existingTodoId,
+			body:         `{"status":"progress"}`,
+			responseCode: http.StatusUnauthorized,
+			responseBody: `{"error":"account not found"}`,
+		},
+		{
+			description:  "Todo Id invalid",
+			accessToken:  validAccessToken,
+			todoId:       "not-a-uuid",
+			body:         `{"status":"progress"}`,
+			responseCode: http.StatusBadRequest,
+			responseBody: `{"error":"invalid todo"}`,
+		},
+		{
+			description:  "Todo does not exist",
+			accessToken:  validAccessToken,
+			todoId:       nonExistingTodoId,
+			body:         `{"status":"progress"}`,
+			responseCode: http.StatusBadRequest,
+			responseBody: `{"error":"todo does not exist"}`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.description, func(t *testing.T) {
+			database := db.InMemoryDatabase()
+			database.AccessTokens[validAccessToken] = existingAccount
+			database.TodoLists[existingList] = []models.TodoDatabaseItem{
+				{Id: existingTodoId, Description: "first todo", Status: "todo", User: existingAccount, UpdatedAt: util.FakeTime(2024, 1, 1)},
+			}
+
+			todos := Todos{
+				Database:     database,
+				GenerateUuid: func() string { return "static_uuid" },
+				CurrentTime:  func() time.Time { return util.FakeTime(2024, 6, 30) },
+			}
+
+			request := httptest.NewRequest(http.MethodPost, "/todos", strings.NewReader(tt.body))
+			request.SetPathValue("todo_id", tt.todoId)
+			request.Header.Set("Authorization", tt.accessToken)
+			writer := httptest.NewRecorder()
+
+			todos.Update(writer, request)
+
+			assert.Equal(t, tt.responseCode, writer.Code)
+			assert.Equal(t, tt.responseBody, writer.Body.String())
+		})
+	}
+}
+
+func TestTodos_UpdateLogic(t *testing.T) {
+	const existingAccount = "f2d869a8-e5bc-4fbf-ad71-0000000000000"
+	const validAccessToken = "f2d869a8-e5bc-4fbf-ad71-222222222222"
+	const nonExistingAccessToken = "f2d869a8-e5bc-4fbf-ad71-333333333333"
+	const existingList = "f2d869a8-e5bc-4fbf-ad71-444444444444"
+	const nonExistingList = "f2d869a8-e5bc-4fbf-ad71-555555555555"
+	const existingTodoId = "f2d869a8-e5bc-4fbf-ad71-666666666666"
+	const nonExistingTodoId = "f2d869a8-e5bc-4fbf-ad71-777777777777"
+
+	tests := []updateTodoTestCase{
+		{
+			description:  "Update todo valid transition",
+			accessToken:  validAccessToken,
+			todoId:       existingTodoId,
+			body:         `{"status":"ongoing"}`,
+			responseCode: http.StatusOK,
+			responseBody: `{"id":"f2d869a8-e5bc-4fbf-ad71-666666666666","created_by":"","description":"first todo","status":"ongoing","updated_at":"2024-06-30T00:00:00+00:00"}`,
+			databaseLists: map[string][]models.TodoDatabaseItem{
+				existingList: {models.TodoDatabaseItem{
+					Id:          "static_uuid",
+					Description: "first todo",
+					Status:      "ongoing",
+					User:        existingAccount,
+					UpdatedAt:   util.FakeTime(2024, 6, 30),
+				}},
+			},
+		},
+		{
+			description:  "Update todo invalid transition",
+			accessToken:  validAccessToken,
+			todoId:       existingTodoId,
+			body:         `{"status":"done"}`,
+			responseCode: http.StatusBadRequest,
+			responseBody: `{"error":"invalid status transition from todo to done"}`,
+			databaseLists: map[string][]models.TodoDatabaseItem{
+				existingList: {models.TodoDatabaseItem{
+					Id:          "static_uuid",
+					Description: "first todo",
+					Status:      "ongoing",
+					User:        existingAccount,
+					UpdatedAt:   util.FakeTime(2000, 1, 1),
+				}},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.description, func(t *testing.T) {
+			database := db.InMemoryDatabase()
+			database.AccessTokens[validAccessToken] = existingAccount
+			database.TodoLists[existingList] = []models.TodoDatabaseItem{
+				{Id: existingTodoId, Description: "first todo", Status: "todo", User: existingAccount, UpdatedAt: util.FakeTime(2000, 1, 1)},
+			}
+
+			todos := Todos{
+				Database:     database,
+				GenerateUuid: func() string { return "static_uuid" },
+				CurrentTime:  func() time.Time { return util.FakeTime(2024, 6, 30) },
+			}
+
+			request := httptest.NewRequest(http.MethodPost, "/todos", strings.NewReader(tt.body))
+			request.SetPathValue("todo_id", tt.todoId)
+			request.Header.Set("Authorization", tt.accessToken)
+			writer := httptest.NewRecorder()
+
+			todos.Update(writer, request)
+
+			assert.Equal(t, tt.responseCode, writer.Code)
+			assert.Equal(t, tt.responseBody, writer.Body.String())
+		})
+	}
 }

@@ -3,12 +3,12 @@ package routes
 import (
 	"backend/db"
 	"backend/models"
+	"backend/util"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 )
 
 type createListTestCase struct {
@@ -128,7 +128,7 @@ func TestTodoLists_Get(t *testing.T) {
 			accessToken:  validAccessToken,
 			todoListId:   todoListIdWithElements,
 			responseCode: http.StatusOK,
-			responseBody: `{"todos":[{"created_by":"test user","description":"first todo","status":"todo","updated_at":"2024-01-01T00:00:00+00:00"},{"created_by":"test user","description":"second todo","status":"ongoing","updated_at":"2023-01-01T00:00:00+00:00"}]}`,
+			responseBody: `{"todos":[{"id":"id1","created_by":"test user","description":"first todo","status":"todo","updated_at":"2024-01-01T00:00:00+00:00"},{"id":"id2","created_by":"test user","description":"second todo","status":"ongoing","updated_at":"2023-01-01T00:00:00+00:00"}]}`,
 		},
 	}
 
@@ -139,8 +139,8 @@ func TestTodoLists_Get(t *testing.T) {
 			database.AccessTokens[validAccessToken] = existingAccount
 			database.TodoLists[todoListIdWithoutElements] = []models.TodoDatabaseItem{}
 			database.TodoLists[todoListIdWithElements] = []models.TodoDatabaseItem{
-				{Description: "first todo", Status: "todo", User: existingAccount, UpdatedAt: todoTime(2024, 1, 1)},
-				{Description: "second todo", Status: "ongoing", User: existingAccount, UpdatedAt: todoTime(2023, 1, 1)},
+				{Id: "id1", Description: "first todo", Status: "todo", User: existingAccount, UpdatedAt: util.FakeTime(2024, 1, 1)},
+				{Id: "id2", Description: "second todo", Status: "ongoing", User: existingAccount, UpdatedAt: util.FakeTime(2023, 1, 1)},
 			}
 
 			todoList := TodoLists{
@@ -159,8 +159,4 @@ func TestTodoLists_Get(t *testing.T) {
 			assert.Equal(t, tt.responseBody, writer.Body.String())
 		})
 	}
-}
-
-func todoTime(year int, month time.Month, day int) time.Time {
-	return time.Date(year, month, day, 0, 0, 0, 0, time.FixedZone("CEST", 1))
 }
