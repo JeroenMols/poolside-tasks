@@ -51,7 +51,7 @@ func TestUsers_Register(t *testing.T) {
 		},
 		{
 			description:   "User name too long",
-			body:          `{"name":"testtesttesttesttesttesttesttest1"}`,
+			body:          fmt.Sprintf(`{"name":"%s"}`, strings.Repeat("a", 33)),
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid user name"}`,
 			databaseUsers: make(map[string]string),

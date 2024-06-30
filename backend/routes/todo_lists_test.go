@@ -47,13 +47,6 @@ func TestTodoLists_Create(t *testing.T) {
 			databaseLists: make(map[string][]db.TodoItem),
 		},
 		{
-			description:   "Access token does not exist2",
-			body:          fmt.Sprintf(`{"access_token":"%s"}`, nonExistingAccessToken),
-			responseCode:  http.StatusUnauthorized,
-			responseBody:  `{"error":"account not found"}`,
-			databaseLists: make(map[string][]db.TodoItem),
-		},
-		{
 			description:   "Create new todo list",
 			body:          fmt.Sprintf(`{"access_token":"%s"}`, validAccessToken),
 			responseCode:  http.StatusOK,
