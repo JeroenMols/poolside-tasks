@@ -35,7 +35,7 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !regexp.MustCompile(listIdRegex).MatchString(body.ListId) {
-		net.HaltUnauthorized(w, "invalid access token")
+		net.HaltBadRequest(w, "invalid todo list")
 		return
 	}
 

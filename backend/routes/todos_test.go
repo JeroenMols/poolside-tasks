@@ -60,6 +60,14 @@ func TestTodo_CreateValidations(t *testing.T) {
 			responseBody:  `{"error":"invalid description"}`,
 			databaseLists: make(map[string][]models.TodoItem),
 		},
+		{
+			description: "Todo list Id invalid",
+			body: fmt.Sprintf(`{"access_token":"%s", "description":"%s", "todo_list_id":"%s"}`,
+				validAccessToken, "description", "not-a-uuid"),
+			responseCode:  http.StatusBadRequest,
+			responseBody:  `{"error":"invalid todo list"}`,
+			databaseLists: make(map[string][]models.TodoItem),
+		},
 	}
 
 	for _, tt := range tests {
