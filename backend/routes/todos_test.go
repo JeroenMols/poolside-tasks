@@ -14,6 +14,7 @@ import (
 
 type createTodoTestCase struct {
 	description   string
+	accessToken   string
 	body          string
 	responseCode  int
 	responseBody  string
@@ -28,9 +29,10 @@ func TestTodo_CreateValidations(t *testing.T) {
 	const existingTodoListId = "f2d869a8-e5bc-4fbf-ad71-444444444444"
 	const nonExistingTodoListId = "f2d869a8-e5bc-4fbf-ad71-555555555555"
 
-	tests := []createListTestCase{
+	tests := []createTodoTestCase{
 		{
 			description:   "Invalid body",
+			accessToken:   validAccessToken,
 			body:          `{"invalid":"body"}`,
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid body"}`,
@@ -38,41 +40,45 @@ func TestTodo_CreateValidations(t *testing.T) {
 		},
 		{
 			description: "Access token does not exist",
-			body: fmt.Sprintf(
-				`{"access_token":"%s", "description":"%s", "todo_list_id": "%s"}`,
-				nonExistingAccessToken, "fake_description", existingTodoListId),
+			accessToken: nonExistingAccessToken,
+			body: fmt.Sprintf(`{"description":"%s", "todo_list_id": "%s"}`,
+				"fake_description", existingTodoListId),
 			responseCode:  http.StatusUnauthorized,
 			responseBody:  `{"error":"account not found"}`,
 			databaseLists: make(map[string][]models.TodoDatabaseItem),
 		},
 		{
 			description: "Description too long",
-			body: fmt.Sprintf(`{"access_token":"%s", "description":"%s", "todo_list_id":"%s"}`,
-				validAccessToken, strings.Repeat("a", 257), existingTodoListId),
+			accessToken: validAccessToken,
+			body: fmt.Sprintf(`{"description":"%s", "todo_list_id":"%s"}`,
+				strings.Repeat("a", 257), existingTodoListId),
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid description"}`,
 			databaseLists: make(map[string][]models.TodoDatabaseItem),
 		},
 		{
 			description: "Description invalid characters",
-			body: fmt.Sprintf(`{"access_token":"%s", "description":"%s", "todo_list_id":"%s"}`,
-				validAccessToken, "/", existingTodoListId),
+			accessToken: validAccessToken,
+			body: fmt.Sprintf(`{"description":"%s", "todo_list_id":"%s"}`,
+				"/", existingTodoListId),
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid description"}`,
 			databaseLists: make(map[string][]models.TodoDatabaseItem),
 		},
 		{
 			description: "Todo list Id invalid",
-			body: fmt.Sprintf(`{"access_token":"%s", "description":"%s", "todo_list_id":"%s"}`,
-				validAccessToken, "description", "not-a-uuid"),
+			accessToken: validAccessToken,
+			body: fmt.Sprintf(`{"description":"%s", "todo_list_id":"%s"}`,
+				"description", "not-a-uuid"),
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid todo list"}`,
 			databaseLists: make(map[string][]models.TodoDatabaseItem),
 		},
 		{
 			description: "Todo list does not exist",
-			body: fmt.Sprintf(`{"access_token":"%s", "description":"%s", "todo_list_id":"%s"}`,
-				validAccessToken, "description", nonExistingTodoListId),
+			accessToken: validAccessToken,
+			body: fmt.Sprintf(`{"description":"%s", "todo_list_id":"%s"}`,
+				"description", nonExistingTodoListId),
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"todo list does not exist"}`,
 			databaseLists: make(map[string][]models.TodoDatabaseItem),
@@ -91,6 +97,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 			}
 
 			request := httptest.NewRequest(http.MethodPost, "/todos", strings.NewReader(tt.body))
+			request.Header.Set("Authorization", tt.accessToken)
 			writer := httptest.NewRecorder()
 
 			todos.Create(writer, request)
@@ -110,11 +117,12 @@ func TestTodo_CreateLogic(t *testing.T) {
 	const existingList = "f2d869a8-e5bc-4fbf-ad71-444444444444"
 	const nonExistingList = "f2d869a8-e5bc-4fbf-ad71-555555555555"
 
-	tests := []createListTestCase{
+	tests := []createTodoTestCase{
 		{
 			description: "Create new todo",
-			body: fmt.Sprintf(`{"access_token":"%s", "description":"%s", "todo_list_id":"%s"}`,
-				validAccessToken, "test todo", existingList),
+			accessToken: validAccessToken,
+			body: fmt.Sprintf(`{"description":"%s", "todo_list_id":"%s"}`,
+				"test todo", existingList),
 			responseCode: http.StatusOK,
 			responseBody: `{"created_by":"","description":"test todo","status":"todo","updated_at":"2024-06-30T00:00:00+00:00"}`,
 			databaseLists: map[string][]models.TodoDatabaseItem{
@@ -128,8 +136,9 @@ func TestTodo_CreateLogic(t *testing.T) {
 		},
 		{
 			description: "Todo list does not exist",
-			body: fmt.Sprintf(`{"access_token":"%s", "description":"%s", "todo_list_id":"%s"}`,
-				validAccessToken, "test todo", nonExistingList),
+			accessToken: validAccessToken,
+			body: fmt.Sprintf(`{"description":"%s", "todo_list_id":"%s"}`,
+				"test todo", nonExistingList),
 			responseCode: http.StatusBadRequest,
 			responseBody: `{"error":"todo list does not exist"}`,
 			databaseLists: map[string][]models.TodoDatabaseItem{
@@ -151,6 +160,7 @@ func TestTodo_CreateLogic(t *testing.T) {
 			}
 
 			request := httptest.NewRequest(http.MethodPost, "/todos", strings.NewReader(tt.body))
+			request.Header.Add("Authorization", tt.accessToken)
 			writer := httptest.NewRecorder()
 
 			todos.Create(writer, request)

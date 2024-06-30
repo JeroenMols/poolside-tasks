@@ -23,7 +23,7 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 		net.HaltBadRequest(w, err.Error())
 		return
 	}
-	accountNumber, err := t.Database.Authorize(body.AccessToken)
+	accountNumber, err := t.Database.Authorize(r.Header.Get("Authorization"))
 	if err != nil {
 		net.HaltUnauthorized(w, err.Error())
 		return
@@ -62,7 +62,6 @@ func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 type todoCreateRequest struct {
-	AccessToken string `json:"access_token" validate:"required"`
 	Description string `json:"description" validate:"required"`
 	ListId      string `json:"todo_list_id" validate:"required"`
 }

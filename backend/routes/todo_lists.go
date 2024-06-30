@@ -16,12 +16,12 @@ type TodoLists struct {
 }
 
 func (t *TodoLists) Create(w http.ResponseWriter, r *http.Request) {
-	body, err := net.ParseBody[listCreateRequest](r)
+	_, err := net.ParseBody[listCreateRequest](r)
 	if err != nil {
 		net.HaltBadRequest(w, err.Error())
 		return
 	}
-	if _, err := t.Database.Authorize(body.AccessToken); err != nil {
+	if _, err := t.Database.Authorize(r.Header.Get("Authorization")); err != nil {
 		net.HaltUnauthorized(w, err.Error())
 		return
 	}
@@ -34,7 +34,10 @@ func (t *TodoLists) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (t *TodoLists) Get(w http.ResponseWriter, r *http.Request) {
-	// TODO move access token to header
+	if _, err := t.Database.Authorize(r.Header.Get("Authorization")); err != nil {
+		net.HaltUnauthorized(w, err.Error())
+		return
+	}
 
 	listId := r.PathValue("list_id")
 
@@ -58,7 +61,6 @@ func (t *TodoLists) Get(w http.ResponseWriter, r *http.Request) {
 }
 
 type listCreateRequest struct {
-	AccessToken string `json:"access_token" validate:"required"`
 }
 
 type listCreateResponse struct {
