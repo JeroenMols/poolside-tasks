@@ -23,15 +23,9 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 		net.HaltBadRequest(w, err.Error())
 		return
 	}
-
-	if !regexp.MustCompile(accessTokenRegex).MatchString(body.AccessToken) {
-		net.HaltUnauthorized(w, "invalid access token")
-		return
-	}
-
-	accountNumber := t.Database.AccessTokens[body.AccessToken]
-	if accountNumber == "" {
-		net.HaltUnauthorized(w, "account not found")
+	accountNumber, err := t.Database.Authorize(body.AccessToken)
+	if err != nil {
+		net.HaltUnauthorized(w, err.Error())
 		return
 	}
 
@@ -54,14 +48,14 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 	item := models.TodoItem{
 		Description: body.Description,
 		Status:      "todo",
-		User:        accountNumber,
+		User:        *accountNumber,
 		UpdatedAt:   t.CurrentTime(),
 	}
 	fmt.Printf("Creating new todo %s\n", item.Description)
 	t.Database.TodoLists[body.ListId] = append(todoList, item)
 
 	net.Success(w, todoCreateResponse{
-		CreatedBy:   t.Database.Users[accountNumber],
+		CreatedBy:   t.Database.Users[*accountNumber],
 		Description: item.Description,
 		Status:      item.Status,
 		UpdatedAt:   item.UpdatedAt.Format(time.RFC3339),

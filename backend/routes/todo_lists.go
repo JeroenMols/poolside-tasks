@@ -7,7 +7,6 @@ import (
 	"backend/util"
 	"fmt"
 	"net/http"
-	"regexp"
 )
 
 type TodoLists struct {
@@ -21,15 +20,8 @@ func (t *TodoLists) Create(w http.ResponseWriter, r *http.Request) {
 		net.HaltBadRequest(w, err.Error())
 		return
 	}
-
-	if !regexp.MustCompile(accessTokenRegex).MatchString(body.AccessToken) {
-		net.HaltUnauthorized(w, "invalid access token")
-		return
-	}
-
-	accountNumber := t.Database.AccessTokens[body.AccessToken]
-	if accountNumber == "" {
-		net.HaltUnauthorized(w, "account not found")
+	if _, err := t.Database.Authorize(body.AccessToken); err != nil {
+		net.HaltUnauthorized(w, err.Error())
 		return
 	}
 
