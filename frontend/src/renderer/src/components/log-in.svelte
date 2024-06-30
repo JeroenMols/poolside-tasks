@@ -4,14 +4,6 @@
   let name = ''
   export let onLogIn: (accessToken: string) => void
 
-  type RegisterResponse = {
-    account_number: string
-  }
-
-  type LogInResponse = {
-    access_token: string
-  }
-
   const register = async () => {
     // TODO prevent SQL injection here
     let response = await fetch('http://localhost:8080/users/register', {
@@ -44,7 +36,60 @@
   }
 </script>
 
-<h1>Tasks</h1>
+<div class="login-container">
+  <h1>Tasks</h1>
+  <input bind:value={name} type="text" placeholder="Enter your name" />
+  <button on:click={() => register()}>Create account</button>
+  <div class="footer">&copy; 2024 Jeroen Mols</div>
+</div>
 
-<input bind:value={name} type="text" placeholder="Enter your name" />
-<button on:click={() => register()}>Get started</button>
+<style>
+  :root {
+    --primary: #e91e65;
+    --primary-hover: #d0175b;
+    --white: #ffffff;
+    --light-gray: #cccccc;
+    --dark-gray: #333333;
+    --background: #fce4ec;
+  }
+
+  .login-container {
+    background: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 350px;
+    text-align: center;
+  }
+  .login-container h1 {
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--primary);
+  }
+  .login-container input[type='text'] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid var(--light-gray);
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  .login-container button {
+    background-color: var(--primary);
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+  }
+  .login-container button:hover {
+    background-color: var(--primary-hover);
+  }
+  .login-container .footer {
+    margin-top: 20px;
+    font-size: 14px;
+    color: var(--dark-gray);
+  }
+</style>
