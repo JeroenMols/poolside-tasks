@@ -17,7 +17,7 @@ type createListTestCase struct {
 	body          string
 	responseCode  int
 	responseBody  string
-	databaseLists map[string][]models.TodoDatabaseItem
+	databaseLists map[string]map[string]models.TodoDatabaseItem
 }
 
 func TestTodoLists_Create(t *testing.T) {
@@ -33,7 +33,7 @@ func TestTodoLists_Create(t *testing.T) {
 			body:          `{"invalid":"body"}`,
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid body"}`,
-			databaseLists: make(map[string][]models.TodoDatabaseItem),
+			databaseLists: make(map[string]map[string]models.TodoDatabaseItem),
 		},
 		{
 			description:   "Access token does not exist",
@@ -41,7 +41,7 @@ func TestTodoLists_Create(t *testing.T) {
 			body:          `{}`,
 			responseCode:  http.StatusUnauthorized,
 			responseBody:  `{"error":"account not found"}`,
-			databaseLists: make(map[string][]models.TodoDatabaseItem),
+			databaseLists: make(map[string]map[string]models.TodoDatabaseItem),
 		},
 		{
 			description:   "Create new todo list",
@@ -49,7 +49,7 @@ func TestTodoLists_Create(t *testing.T) {
 			body:          `{}`,
 			responseCode:  http.StatusOK,
 			responseBody:  `{"todo_list_id":"static_uuid"}`,
-			databaseLists: map[string][]models.TodoDatabaseItem{"static_uuid": {}},
+			databaseLists: map[string]map[string]models.TodoDatabaseItem{"static_uuid": {}},
 		},
 	}
 
@@ -137,10 +137,10 @@ func TestTodoLists_Get(t *testing.T) {
 			database := db.InMemoryDatabase()
 			database.Users[existingAccount] = "test user"
 			database.AccessTokens[validAccessToken] = existingAccount
-			database.TodoLists[todoListIdWithoutElements] = []models.TodoDatabaseItem{}
-			database.TodoLists[todoListIdWithElements] = []models.TodoDatabaseItem{
-				{Id: "id1", Description: "first todo", Status: "todo", User: existingAccount, UpdatedAt: util.FakeTime(2024, 1, 1)},
-				{Id: "id2", Description: "second todo", Status: "ongoing", User: existingAccount, UpdatedAt: util.FakeTime(2023, 1, 1)},
+			database.TodoLists[todoListIdWithoutElements] = make(map[string]models.TodoDatabaseItem)
+			database.TodoLists[todoListIdWithElements] = map[string]models.TodoDatabaseItem{
+				"id1": {Id: "id1", Description: "first todo", Status: "todo", User: existingAccount, UpdatedAt: util.FakeTime(2024, 1, 1)},
+				"id2": {Id: "id2", Description: "second todo", Status: "ongoing", User: existingAccount, UpdatedAt: util.FakeTime(2023, 1, 1)},
 			}
 
 			todoList := TodoLists{

@@ -9,14 +9,14 @@ import (
 type Database struct {
 	Users        map[string]string
 	AccessTokens map[string]string
-	TodoLists    map[string][]models.TodoDatabaseItem
+	TodoLists    map[string]map[string]models.TodoDatabaseItem
 }
 
 func InMemoryDatabase() Database {
 	return Database{
 		Users:        make(map[string]string),
 		AccessTokens: make(map[string]string),
-		TodoLists:    make(map[string][]models.TodoDatabaseItem),
+		TodoLists:    make(map[string]map[string]models.TodoDatabaseItem),
 	}
 }
 
@@ -44,7 +44,13 @@ func (d *Database) GetTodos(listId string) (*[]models.TodoDatabaseItem, error) {
 	if todoList == nil {
 		return nil, errors.New("todo list does not exist")
 	}
-	return &todoList, nil
+
+	items := make([]models.TodoDatabaseItem, 0, len(todoList))
+	for _, value := range todoList {
+		items = append(items, value)
+	}
+
+	return &items, nil
 }
 
 func (d *Database) GetTodo(todoId string) (*models.TodoDatabaseItem, error) {
@@ -57,6 +63,17 @@ func (d *Database) GetTodo(todoId string) (*models.TodoDatabaseItem, error) {
 		return nil, errors.New("todo does not exist")
 	}
 	return todo, nil
+}
+
+func (d *Database) UpdateTodo(todo *models.TodoDatabaseItem) error {
+	for _, todos := range d.TodoLists {
+		_, exists := todos[todo.Id]
+		if exists {
+			todos[todo.Id] = *todo
+			return nil
+		}
+	}
+	return errors.New("todo does not exist")
 }
 
 // Note: this would not be required when using a database, as todo items would

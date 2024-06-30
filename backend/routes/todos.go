@@ -35,7 +35,7 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todos, err := t.Database.GetTodos(body.ListId)
+	_, err = t.Database.GetTodos(body.ListId)
 	if err != nil {
 		net.HaltBadRequest(w, err.Error())
 		return
@@ -49,7 +49,7 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt:   t.CurrentTime(),
 	}
 	fmt.Printf("Creating new todo %s\n", item.Description)
-	t.Database.TodoLists[body.ListId] = append(*todos, item)
+	t.Database.TodoLists[body.ListId][item.Id] = item
 
 	net.Success(w, models.TodoItem{
 		Id:          item.Id,
@@ -86,6 +86,7 @@ func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
 		net.HaltBadRequest(w, err.Error())
 		return
 	}
+	t.Database.UpdateTodo(item)
 
 	net.Success(w, item.ToTodoItem(t.Database.Users[*accountNumber]))
 }
