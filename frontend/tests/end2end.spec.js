@@ -1,6 +1,6 @@
 const { test, expect, _electron: electron } = require('@playwright/test')
 
-test('example test', async () => {
+test('end 2 end test', async () => {
   const electronApp = await electron.launch({ args: ['.'] })
   const isPackaged = await electronApp.evaluate(async ({ app }) => {
     // This runs in Electron's main process, parameter here is always
@@ -39,7 +39,7 @@ test('example test', async () => {
   await window.screenshot({ path: 'screenshots/todos-done.png' })
 
   await window.getByText('next').click();
-  await window.getByText('Failed to update todo ({"error":"invalid status transition from done to todo})').isVisible();
+  await window.getByText('Failed to update todo ({"error":"invalid status transition from done to ongoing})').isVisible();
   await window.screenshot({ path: 'screenshots/todos-done.png' })
 
   await electronApp.close()
