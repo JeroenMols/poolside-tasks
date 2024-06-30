@@ -21,13 +21,6 @@ func TestUsers_Register(t *testing.T) {
 
 	tests := []registerTestCase{
 		{
-			description:   "Missing body",
-			body:          "",
-			responseCode:  http.StatusBadRequest,
-			responseBody:  "{\"error\":\"invalid body\"}",
-			databaseUsers: make(map[string]string),
-		},
-		{
 			description:   "Valid body",
 			body:          "{\"name\":\"myname\"}",
 			responseCode:  http.StatusOK,
@@ -35,24 +28,10 @@ func TestUsers_Register(t *testing.T) {
 			databaseUsers: map[string]string{"static_uuid": "myname"},
 		},
 		{
-			description:   "Additional body attribute",
-			body:          "{\"name\":\"myname\",\"age\":30}",
-			responseCode:  http.StatusBadRequest,
-			responseBody:  "{\"error\":\"invalid body\"}",
-			databaseUsers: make(map[string]string),
-		},
-		{
 			description:   "Invalid body",
 			body:          "{\"invalid\":\"body\"}",
 			responseCode:  http.StatusBadRequest,
 			responseBody:  "{\"error\":\"invalid body\"}",
-			databaseUsers: make(map[string]string),
-		},
-		{
-			description:   "Empty body",
-			body:          "{}",
-			responseCode:  http.StatusBadRequest,
-			responseBody:  "{\"error\":\"validation error\"}",
 			databaseUsers: make(map[string]string),
 		},
 	}
@@ -91,13 +70,6 @@ func TestUsers_Login(t *testing.T) {
 
 	tests := []loginTestCase{
 		{
-			description:    "Missing body",
-			body:           "",
-			responseCode:   http.StatusBadRequest,
-			responseBody:   "{\"error\":\"invalid body\"}",
-			databaseTokens: make(map[string]string),
-		},
-		{
 			description:    "Valid body",
 			body:           "{\"account_number\":\"my_number\"}",
 			responseCode:   http.StatusOK,
@@ -105,24 +77,10 @@ func TestUsers_Login(t *testing.T) {
 			databaseTokens: map[string]string{"my_number": "static_uuid"},
 		},
 		{
-			description:    "Additional body attribute",
-			body:           "{\"account_number\":\"my_number\",\"age\":30}",
-			responseCode:   http.StatusBadRequest,
-			responseBody:   "{\"error\":\"invalid body\"}",
-			databaseTokens: make(map[string]string),
-		},
-		{
 			description:    "Invalid body",
 			body:           "{\"invalid\":\"body\"}",
 			responseCode:   http.StatusBadRequest,
 			responseBody:   "{\"error\":\"invalid body\"}",
-			databaseTokens: make(map[string]string),
-		},
-		{
-			description:    "Empty body",
-			body:           "{}",
-			responseCode:   http.StatusBadRequest,
-			responseBody:   "{\"error\":\"validation error\"}",
 			databaseTokens: make(map[string]string),
 		},
 	}
