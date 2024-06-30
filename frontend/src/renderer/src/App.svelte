@@ -17,7 +17,7 @@
 </script>
 
 {#if todoList != null}
-  <Todo {accessToken} {todoList} />
+  <Todo {accessToken} todoListId={todoList} />
 {:else if accessToken != null}
   <ChooseList {accessToken} {onListSelected} />
 {:else}
