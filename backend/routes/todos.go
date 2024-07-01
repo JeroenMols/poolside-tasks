@@ -2,7 +2,6 @@ package routes
 
 import (
 	"backend/db"
-	"backend/models"
 	"backend/net"
 	"net/http"
 	"regexp"
@@ -30,7 +29,7 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !regexp.MustCompile(todoDescriptionRegex).MatchString(body.Description) {
-		net.HaltBadRequest(w, "invalid description")
+		net.HaltBadRequest(w, "description not valid")
 		return
 	}
 
@@ -42,7 +41,10 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 
 	item := t.database.CreateTodo(body.ListId, body.Description, accessToken.UserId)
 
-	net.Success(w, models.ToTodoItem(item, t.database.Users[accessToken.UserId].Name))
+	// No need to handle error, we already know the user exists
+	user, _ := t.database.GetUser(item.UserId)
+
+	net.Success(w, toTodoItem(item, user))
 }
 
 func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
@@ -52,15 +54,15 @@ func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todo_id := r.PathValue("todo_id")
+	todoId := r.PathValue("todo_id")
 
-	accessToken, err := t.database.GetAccessToken(r.Header.Get("Authorization"))
+	_, err = t.database.GetAccessToken(r.Header.Get("Authorization"))
 	if err != nil {
 		net.HaltUnauthorized(w, err.Error())
 		return
 	}
 
-	item, err := t.database.GetTodo(todo_id)
+	item, err := t.database.GetTodo(todoId)
 	if err != nil {
 		net.HaltBadRequest(w, err.Error())
 		return
@@ -72,17 +74,9 @@ func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// No need to handle error, we already know the TODO exists
+	// No need to handle error, we already know the both exists
 	updatedItem, _ := t.database.UpdateTodo(item)
+	user, _ := t.database.GetUser(updatedItem.UserId)
 
-	net.Success(w, models.ToTodoItem(updatedItem, t.database.Users[accessToken.UserId].Name))
-}
-
-type todoCreateRequest struct {
-	Description string `json:"description" validate:"required"`
-	ListId      string `json:"todo_list_id" validate:"required"`
-}
-
-type todoUpdateRequest struct {
-	Status string `json:"status" validate:"required"`
+	net.Success(w, toTodoItem(updatedItem, user))
 }

@@ -33,7 +33,7 @@ func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("UserId name: %s\n", body.Name)
 	user := u.database.CreateUser(body.Name)
 	response := registerResponse{
-		AccountNumber: user.Id,
+		UserId: user.Id,
 	}
 
 	net.Success(w, response)
@@ -48,14 +48,14 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !regexp.MustCompile(accountNumberRegex).MatchString(body.AccountNumber) {
-		net.HaltBadRequest(w, "invalid account number")
+	if !regexp.MustCompile(accountNumberRegex).MatchString(body.UserId) {
+		net.HaltBadRequest(w, "invalid user id")
 		return
 	}
 
-	user, exists := u.database.Users[body.AccountNumber]
+	user, exists := u.database.Users[body.UserId]
 	if !exists {
-		net.HaltBadRequest(w, "account not found")
+		net.HaltBadRequest(w, "user not found")
 		return
 	}
 	// TODO: return existing token if exists
@@ -67,20 +67,4 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	net.Success(w, response)
-}
-
-type registerRequest struct {
-	Name string `json:"name" validate:"required"`
-}
-
-type registerResponse struct {
-	AccountNumber string `json:"account_number"`
-}
-
-type loginRequest struct {
-	AccountNumber string `json:"account_number" validate:"required"`
-}
-
-type loginResponse struct {
-	AccessToken string `json:"access_token"`
 }

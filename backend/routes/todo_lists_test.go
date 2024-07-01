@@ -27,7 +27,7 @@ func TestTodoLists_Create(t *testing.T) {
 			accessToken:   fakeToken,
 			body:          `{"invalid":"body"}`,
 			responseCode:  http.StatusBadRequest,
-			responseBody:  `{"error":"invalid body"}`,
+			responseBody:  `{"error":"body not valid"}`,
 			databaseLists: make(map[string]db.TodoList),
 		},
 		{
@@ -35,7 +35,7 @@ func TestTodoLists_Create(t *testing.T) {
 			accessToken:   fakeWrongToken,
 			body:          `{}`,
 			responseCode:  http.StatusUnauthorized,
-			responseBody:  `{"error":"account not found"}`,
+			responseBody:  `{"error":"user not found"}`,
 			databaseLists: make(map[string]db.TodoList),
 		},
 		{
@@ -98,25 +98,25 @@ func TestTodoLists_Get(t *testing.T) {
 			responseBody: `{"error":"invalid todo list"}`,
 		},
 		{
-			description:  "Todo list does not exist",
+			description:  "todo list not found",
 			accessToken:  fakeToken,
 			todoListId:   fakeWrongTodoListId,
 			responseCode: http.StatusBadRequest,
-			responseBody: `{"error":"todo list does not exist"}`,
+			responseBody: `{"error":"todo list not found"}`,
 		},
 		{
 			description:  "Get empty todo list",
 			accessToken:  fakeToken,
 			todoListId:   fakeNoElementsTodoListId,
 			responseCode: http.StatusOK,
-			responseBody: `{"todos":[]}`,
+			responseBody: `{"todo_list_id":"lst_cccccccccccccccccccccc","todos":[]}`,
 		},
 		{
 			description:  "Get todo list",
 			accessToken:  fakeToken,
 			todoListId:   fakeTodoListId,
 			responseCode: http.StatusOK,
-			responseBody: `{"todos":[{"id":"id1","created_by":"test user","description":"first todo","status":"todo","updated_at":"2024-01-01T00:00:00+00:00"},{"id":"id2","created_by":"test user","description":"second todo","status":"ongoing","updated_at":"2023-01-01T00:00:00+00:00"}]}`,
+			responseBody: `{"todo_list_id":"lst_aaaaaaaaaaaaaaaaaaaaaa","todos":[{"id":"id1","created_by":"test user","description":"first todo","status":"todo","updated_at":"2024-01-01T00:00:00+00:00"},{"id":"id2","created_by":"test user","description":"second todo","status":"ongoing","updated_at":"2023-01-01T00:00:00+00:00"}]}`,
 		},
 	}
 

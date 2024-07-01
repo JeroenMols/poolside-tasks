@@ -32,7 +32,7 @@ func ParseBody[K any](r *http.Request) (*K, error) {
 		if err.Error() == "unexpected EOF" {
 			return nil, errors.New("validation error")
 		} else {
-			return nil, errors.New("invalid body")
+			return nil, errors.New("body not valid")
 		}
 	}
 

@@ -85,13 +85,13 @@ func TestParseBody(t *testing.T) {
 			description: "Missing body",
 			body:        "",
 			output:      nil,
-			err:         "invalid body",
+			err:         "body not valid",
 		},
 		{
 			description: "Invalid body",
-			body:        `invalid body`,
+			body:        `body not valid`,
 			output:      nil,
-			err:         "invalid body",
+			err:         "body not valid",
 		},
 		{
 			description: "Empty body",

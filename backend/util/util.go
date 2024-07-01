@@ -6,7 +6,6 @@ import (
 	"time"
 )
 
-// GenerateUuid TODO: support short human readable uuids e.g. list_abh135asdfjkl
 type GenerateUuid func(string) string
 
 func GenerateRandomUuid(prefix string) string {

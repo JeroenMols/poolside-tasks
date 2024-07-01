@@ -2,7 +2,6 @@ package routes
 
 import (
 	"backend/db"
-	"backend/models"
 	"backend/net"
 	"fmt"
 	"net/http"
@@ -48,9 +47,9 @@ func (t *TodoLists) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	formattedTodos := []models.TodoItem{}
+	formattedTodos := []todoItem{}
 	for _, todo := range *todos {
-		formattedTodos = append(formattedTodos, models.TodoItem{
+		formattedTodos = append(formattedTodos, todoItem{
 			Id:          todo.Id,
 			CreatedBy:   t.database.Users[todo.UserId].Name,
 			Description: todo.Description,
@@ -59,17 +58,8 @@ func (t *TodoLists) Get(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	net.Success(w, listGetResponse{Todos: formattedTodos})
-}
-
-type listCreateRequest struct {
-}
-
-type listCreateResponse struct {
-	TodoListId string `json:"todo_list_id"`
-}
-
-// TODO include the todo list id here
-type listGetResponse struct {
-	Todos []models.TodoItem `json:"todos"`
+	net.Success(w, listGetResponse{
+		ListId: listId,
+		Todos:  formattedTodos,
+	})
 }

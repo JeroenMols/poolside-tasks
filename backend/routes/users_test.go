@@ -4,7 +4,6 @@ import (
 	"backend/db"
 	"backend/util"
 	"fmt"
-	"github.com/lithammer/shortuuid/v4"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -28,14 +27,14 @@ func TestUsers_Register(t *testing.T) {
 			description:   "Valid body",
 			body:          `{"name":"myname"}`,
 			responseCode:  http.StatusOK,
-			responseBody:  `{"account_number":"static_uuid"}`,
+			responseBody:  `{"user_id":"static_uuid"}`,
 			databaseUsers: map[string]db.User{"static_uuid": {Id: "static_uuid", Name: "myname"}},
 		},
 		{
 			description:   "Invalid body",
 			body:          `{"invalid":"body"}`,
 			responseCode:  http.StatusBadRequest,
-			responseBody:  `{"error":"invalid body"}`,
+			responseBody:  `{"error":"body not valid"}`,
 			databaseUsers: make(map[string]db.User),
 		},
 		{
@@ -90,40 +89,33 @@ type loginTestCase struct {
 }
 
 func TestUsers_Login(t *testing.T) {
-
-	blab := shortuuid.New()
-	fmt.Println(blab)
-
-	const existingAccount = "f2d869a8-e5bc-4fbf-ad71-e0d154b5d433"
-	const nonExistingAccount = "f2d869a8-e5bc-4fbf-ad71-e0d154b5d434"
-
 	tests := []loginTestCase{
 		{
 			description:    "Valid body",
-			body:           fmt.Sprintf(`{"account_number":"%s"}`, existingAccount),
+			body:           fmt.Sprintf(`{"user_id":"%s"}`, fakeUserId),
 			responseCode:   http.StatusOK,
 			responseBody:   `{"access_token":"static_uuid"}`,
-			databaseTokens: map[string]db.AccessToken{"static_uuid": {UserId: existingAccount, Token: "static_uuid"}},
+			databaseTokens: map[string]db.AccessToken{"static_uuid": {UserId: fakeUserId, Token: "static_uuid"}},
 		},
 		{
 			description:    "Invalid body",
 			body:           `{"invalid":"body"}`,
 			responseCode:   http.StatusBadRequest,
-			responseBody:   `{"error":"invalid body"}`,
+			responseBody:   `{"error":"body not valid"}`,
 			databaseTokens: make(map[string]db.AccessToken),
 		},
 		{
 			description:    "Account number not a uuid",
-			body:           `{"account_number":"not_a_uuid"}`,
+			body:           `{"user_id":"not_a_uuid"}`,
 			responseCode:   http.StatusBadRequest,
-			responseBody:   `{"error":"invalid account number"}`,
+			responseBody:   `{"error":"invalid user id"}`,
 			databaseTokens: make(map[string]db.AccessToken),
 		},
 		{
 			description:    "Account does not exist",
-			body:           fmt.Sprintf(`{"account_number":"%s"}`, nonExistingAccount),
+			body:           fmt.Sprintf(`{"user_id":"%s"}`, fakeWrongUserId),
 			responseCode:   http.StatusBadRequest,
-			responseBody:   `{"error":"account not found"}`,
+			responseBody:   `{"error":"user not found"}`,
 			databaseTokens: make(map[string]db.AccessToken),
 		},
 	}
@@ -134,7 +126,7 @@ func TestUsers_Login(t *testing.T) {
 				func() time.Time { return util.FakeTime(2021, 1, 1) },
 				func(string) string { return "static_uuid" },
 			)
-			database.Users[existingAccount] = db.User{Id: existingAccount, Name: "myname"}
+			database.Users[fakeUserId] = db.User{Id: fakeUserId, Name: "myname"}
 			users := CreateUsers(database)
 
 			request := httptest.NewRequest(http.MethodGet, "/users/login", strings.NewReader(tt.body))

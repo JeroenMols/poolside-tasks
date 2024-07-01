@@ -50,6 +50,14 @@ func (d *Database) CreateUser(name string) *User {
 	return &user
 }
 
+func (d *Database) GetUser(userId string) (*User, error) {
+	user, exists := d.Users[userId]
+	if !exists {
+		return nil, errors.New("user not found")
+	}
+	return &user, nil
+}
+
 func (d *Database) CreateAccessToken(accountNumber string) *AccessToken {
 	accessToken := AccessToken{
 		UserId: accountNumber,
@@ -65,7 +73,7 @@ func (d *Database) GetAccessToken(token string) (*AccessToken, error) {
 	}
 	accessToken, exists := d.AccessTokens[token]
 	if !exists {
-		return nil, errors.New("account not found")
+		return nil, errors.New("user not found")
 	}
 	return &accessToken, nil
 }
@@ -95,7 +103,7 @@ func (d *Database) CreateTodo(listId string, description string, user string) *T
 func (d *Database) UpdateTodo(todo *TodoItem) (*TodoItem, error) {
 	_, exists := d.TodoItems[todo.Id]
 	if !exists {
-		return nil, errors.New("todo does not exist")
+		return nil, errors.New("todo not found")
 	}
 	todo.UpdatedAt = d.currentTime()
 	d.TodoItems[todo.Id] = *todo
@@ -109,7 +117,7 @@ func (d *Database) GetTodo(todoId string) (*TodoItem, error) {
 
 	item, exists := d.TodoItems[todoId]
 	if !exists {
-		return nil, errors.New("todo does not exist")
+		return nil, errors.New("todo not found")
 	}
 	return &item, nil
 }
@@ -121,7 +129,7 @@ func (d *Database) GetTodos(listId string) (*[]TodoItem, error) {
 
 	todoList, exists := d.TodoLists[listId]
 	if !exists {
-		return nil, errors.New("todo list does not exist")
+		return nil, errors.New("todo list not found")
 	}
 
 	var items []TodoItem

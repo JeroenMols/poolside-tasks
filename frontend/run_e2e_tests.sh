@@ -14,3 +14,4 @@ npx playwright test --reporter=html
 # Kill the backend server
 kill $BACKEND_PID &> /dev/null
 kill $(pgrep -f go-build) > /dev/null
+    

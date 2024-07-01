@@ -21,18 +21,18 @@
 
     if (response.ok) {
       const registerResponse = (await response.json()) as RegisterResponse
-      ensureNonEmpty(registerResponse.account_number)
-      await login(registerResponse.account_number)
+      ensureNonEmpty(registerResponse.user_id)
+      await login(registerResponse.user_id)
     } else {
       let error = await response.text()
       errorMessage = `Failed to register user (${error})`
     }
   }
 
-  const login = async (accountNumber: string) => {
+  const login = async (user_id: string) => {
     let response = await fetch('http://localhost:8080/users/login', {
       method: 'POST',
-      body: JSON.stringify({ account_number: accountNumber })
+      body: JSON.stringify({ user_id: user_id })
     })
 
     if (response.ok) {

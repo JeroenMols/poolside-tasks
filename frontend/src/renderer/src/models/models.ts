@@ -1,5 +1,5 @@
 export type RegisterResponse = {
-  account_number: string
+  user_id: string
 }
 
 export type LogInResponse = {
@@ -11,6 +11,7 @@ export type CreateTodoListResponse = {
 }
 
 export type TodoListReponses = {
+  todo_list_id: string
   todos: TodoItem[]
 }
 
