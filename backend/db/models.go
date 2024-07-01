@@ -7,13 +7,13 @@ import (
 )
 
 type User struct {
-	AccountNumber string
-	Name          string
+	Id   string
+	Name string
 }
 
 type AccessToken struct {
-	AccountNumber string
-	Token         string
+	UserId string
+	Token  string
 }
 
 type TodoList struct {
@@ -23,10 +23,10 @@ type TodoList struct {
 type TodoItem struct {
 	Id          string
 	ListId      string
+	UserId      string
 	UpdatedAt   time.Time
 	Description string
 	Status      string
-	User        string
 }
 
 func (t *TodoItem) ChangeStatus(newStatus string) error {

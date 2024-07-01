@@ -28,7 +28,7 @@ func TestUsers_Register(t *testing.T) {
 			body:          `{"name":"myname"}`,
 			responseCode:  http.StatusOK,
 			responseBody:  `{"account_number":"static_uuid"}`,
-			databaseUsers: map[string]db.User{"static_uuid": {AccountNumber: "static_uuid", Name: "myname"}},
+			databaseUsers: map[string]db.User{"static_uuid": {Id: "static_uuid", Name: "myname"}},
 		},
 		{
 			description:   "Invalid body",
@@ -38,21 +38,21 @@ func TestUsers_Register(t *testing.T) {
 			databaseUsers: make(map[string]db.User),
 		},
 		{
-			description:   "User name too short",
+			description:   "UserId name too short",
 			body:          `{"name":"s"}`,
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid user name"}`,
 			databaseUsers: make(map[string]db.User),
 		},
 		{
-			description:   "User name invalid character",
+			description:   "UserId name invalid character",
 			body:          `{"name":"name-%*("}`,
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid user name"}`,
 			databaseUsers: make(map[string]db.User),
 		},
 		{
-			description:   "User name too long",
+			description:   "UserId name too long",
 			body:          fmt.Sprintf(`{"name":"%s"}`, strings.Repeat("a", 33)),
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid user name"}`,
@@ -99,7 +99,7 @@ func TestUsers_Login(t *testing.T) {
 			body:           fmt.Sprintf(`{"account_number":"%s"}`, existingAccount),
 			responseCode:   http.StatusOK,
 			responseBody:   `{"access_token":"static_uuid"}`,
-			databaseTokens: map[string]db.AccessToken{"static_uuid": {AccountNumber: existingAccount, Token: "static_uuid"}},
+			databaseTokens: map[string]db.AccessToken{"static_uuid": {UserId: existingAccount, Token: "static_uuid"}},
 		},
 		{
 			description:    "Invalid body",
@@ -130,7 +130,7 @@ func TestUsers_Login(t *testing.T) {
 				func() time.Time { return util.FakeTime(2021, 1, 1) },
 				func() string { return "static_uuid" },
 			)
-			database.Users[existingAccount] = db.User{AccountNumber: existingAccount, Name: "myname"}
+			database.Users[existingAccount] = db.User{Id: existingAccount, Name: "myname"}
 			users := CreateUsers(database)
 
 			request := httptest.NewRequest(http.MethodGet, "/users/login", strings.NewReader(tt.body))

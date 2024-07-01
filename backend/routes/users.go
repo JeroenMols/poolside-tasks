@@ -30,10 +30,10 @@ func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("User name: %s\n", body.Name)
+	fmt.Printf("UserId name: %s\n", body.Name)
 	user := u.database.CreateUser(body.Name)
 	response := registerResponse{
-		AccountNumber: user.AccountNumber,
+		AccountNumber: user.Id,
 	}
 
 	net.Success(w, response)
@@ -60,8 +60,8 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	// TODO: return existing token if exists
 
-	fmt.Printf("Account number: %s\n", user.AccountNumber)
-	accessToken := u.database.CreateAccessToken(user.AccountNumber)
+	fmt.Printf("Account number: %s\n", user.Id)
+	accessToken := u.database.CreateAccessToken(user.Id)
 	response := loginResponse{
 		AccessToken: accessToken.Token,
 	}

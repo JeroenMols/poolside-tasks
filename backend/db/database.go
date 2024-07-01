@@ -43,17 +43,17 @@ const todoIdRegex = `^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$`
 
 func (d *Database) CreateUser(name string) *User {
 	user := User{
-		AccountNumber: d.generateUuid(),
-		Name:          name,
+		Id:   d.generateUuid(),
+		Name: name,
 	}
-	d.Users[user.AccountNumber] = user
+	d.Users[user.Id] = user
 	return &user
 }
 
 func (d *Database) CreateAccessToken(accountNumber string) *AccessToken {
 	accessToken := AccessToken{
-		AccountNumber: accountNumber,
-		Token:         d.generateUuid(),
+		UserId: accountNumber,
+		Token:  d.generateUuid(),
 	}
 	d.AccessTokens[accessToken.Token] = accessToken
 	return &accessToken
@@ -84,7 +84,7 @@ func (d *Database) CreateTodo(listId string, description string, user string) *T
 		ListId:      listId,
 		Description: description,
 		Status:      "todo",
-		User:        user,
+		UserId:      user,
 		UpdatedAt:   d.currentTime(),
 	}
 

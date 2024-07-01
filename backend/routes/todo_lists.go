@@ -52,7 +52,7 @@ func (t *TodoLists) Get(w http.ResponseWriter, r *http.Request) {
 	for _, todo := range *todos {
 		formattedTodos = append(formattedTodos, models.TodoItem{
 			Id:          todo.Id,
-			CreatedBy:   t.database.Users[todo.User].Name,
+			CreatedBy:   t.database.Users[todo.UserId].Name,
 			Description: todo.Description,
 			Status:      todo.Status,
 			UpdatedAt:   todo.UpdatedAt.Format(time.RFC3339),

@@ -40,9 +40,9 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	item := t.database.CreateTodo(body.ListId, body.Description, accessToken.AccountNumber)
+	item := t.database.CreateTodo(body.ListId, body.Description, accessToken.UserId)
 
-	net.Success(w, models.ToTodoItem(item, t.database.Users[accessToken.AccountNumber].Name))
+	net.Success(w, models.ToTodoItem(item, t.database.Users[accessToken.UserId].Name))
 }
 
 func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
@@ -75,7 +75,7 @@ func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
 	// No need to handle error, we already know the TODO exists
 	updatedItem, _ := t.database.UpdateTodo(item)
 
-	net.Success(w, models.ToTodoItem(updatedItem, t.database.Users[accessToken.AccountNumber].Name))
+	net.Success(w, models.ToTodoItem(updatedItem, t.database.Users[accessToken.UserId].Name))
 }
 
 type todoCreateRequest struct {

@@ -91,7 +91,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 				func() time.Time { return util.FakeTime(2024, 6, 30) },
 				func() string { return "static_uuid" },
 			)
-			database.AccessTokens[validAccessToken] = db.AccessToken{AccountNumber: existingAccount, Token: validAccessToken}
+			database.AccessTokens[validAccessToken] = db.AccessToken{UserId: existingAccount, Token: validAccessToken}
 			database.TodoLists[existingTodoListId] = db.TodoList{Id: existingTodoListId}
 
 			todos := CreateTodos(database)
@@ -130,7 +130,7 @@ func TestTodo_CreateLogic(t *testing.T) {
 					ListId:      existingList,
 					Description: "test todo",
 					Status:      "todo",
-					User:        existingAccount,
+					UserId:      existingAccount,
 					UpdatedAt:   util.FakeTime(2024, 6, 30),
 				},
 			},
@@ -152,7 +152,7 @@ func TestTodo_CreateLogic(t *testing.T) {
 				func() time.Time { return util.FakeTime(2024, 6, 30) },
 				func() string { return "static_uuid" },
 			)
-			database.AccessTokens[validAccessToken] = db.AccessToken{AccountNumber: existingAccount, Token: validAccessToken}
+			database.AccessTokens[validAccessToken] = db.AccessToken{UserId: existingAccount, Token: validAccessToken}
 			database.TodoLists[existingList] = db.TodoList{Id: existingList}
 
 			todos := CreateTodos(database)
@@ -231,10 +231,10 @@ func TestTodo_UpdateValidations(t *testing.T) {
 				func() time.Time { return util.FakeTime(2024, 6, 30) },
 				func() string { return "static_uuid" },
 			)
-			database.AccessTokens[validAccessToken] = db.AccessToken{AccountNumber: existingAccount, Token: validAccessToken}
+			database.AccessTokens[validAccessToken] = db.AccessToken{UserId: existingAccount, Token: validAccessToken}
 			database.TodoLists[existingList] = db.TodoList{Id: existingList}
 			database.TodoItems = map[string]db.TodoItem{
-				existingTodoId: {Id: existingTodoId, ListId: existingList, Description: "first todo", Status: "todo", User: existingAccount, UpdatedAt: util.FakeTime(2024, 1, 1)},
+				existingTodoId: {Id: existingTodoId, ListId: existingList, Description: "first todo", Status: "todo", UserId: existingAccount, UpdatedAt: util.FakeTime(2024, 1, 1)},
 			}
 
 			todos := CreateTodos(database)
@@ -274,7 +274,7 @@ func TestTodos_UpdateLogic(t *testing.T) {
 					Id:          "static_uuid",
 					Description: "first todo",
 					Status:      "ongoing",
-					User:        existingAccount,
+					UserId:      existingAccount,
 					UpdatedAt:   util.FakeTime(2024, 6, 30),
 				}},
 			},
@@ -291,7 +291,7 @@ func TestTodos_UpdateLogic(t *testing.T) {
 					Id:          "static_uuid",
 					Description: "first todo",
 					Status:      "ongoing",
-					User:        existingAccount,
+					UserId:      existingAccount,
 					UpdatedAt:   util.FakeTime(2000, 1, 1),
 				}},
 			},
@@ -304,10 +304,10 @@ func TestTodos_UpdateLogic(t *testing.T) {
 				func() time.Time { return util.FakeTime(2024, 6, 30) },
 				func() string { return "static_uuid" },
 			)
-			database.AccessTokens[validAccessToken] = db.AccessToken{AccountNumber: existingAccount, Token: validAccessToken}
+			database.AccessTokens[validAccessToken] = db.AccessToken{UserId: existingAccount, Token: validAccessToken}
 			database.TodoLists[existingList] = db.TodoList{Id: existingList}
 			database.TodoItems = map[string]db.TodoItem{
-				existingTodoId: {Id: existingTodoId, ListId: existingList, Description: "first todo", Status: "todo", User: existingAccount, UpdatedAt: util.FakeTime(2000, 1, 1)},
+				existingTodoId: {Id: existingTodoId, ListId: existingList, Description: "first todo", Status: "todo", UserId: existingAccount, UpdatedAt: util.FakeTime(2000, 1, 1)},
 			}
 
 			todos := CreateTodos(database)

@@ -59,7 +59,7 @@ func TestTodoItem_ChangeStatus(t *testing.T) {
 				UpdatedAt:   util.FakeTime(2021, 1, 1),
 				Description: "fake description",
 				Status:      tt.oldStatus,
-				User:        "fake_user",
+				UserId:      "fake_user",
 			}
 
 			err := item.ChangeStatus(tt.newStatus)
