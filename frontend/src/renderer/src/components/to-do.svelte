@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import ErrorBanner from './error-banner.svelte'
-  import type { TodoItem, TodoListReponses, TodoStatus } from '../models/models'
+  import type { TodoItem, TodoListReponses, TodoStatus } from '../net/models'
 
   export let accessToken: string = ''
   export let todoListId: string = ''

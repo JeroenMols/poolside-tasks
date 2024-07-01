@@ -1,4 +1,12 @@
+export type RegisterRequest = {
+  name: string
+}
+
 export type RegisterResponse = {
+  user_id: string
+}
+
+export type LogInRequest = {
   user_id: string
 }
 
@@ -21,6 +29,10 @@ export type TodoItem = {
   description: string
   status: TodoStatus
   updated_at: string
+}
+
+export type ErrorResponse = {
+  error: string
 }
 
 export type TodoStatus = 'todo' | 'ongoing' | 'done'

@@ -1,47 +1,30 @@
 <script lang="ts">
   import { ensureNonEmpty } from '../utils/assertions'
   import ErrorBanner from './error-banner.svelte'
-  import type { RegisterResponse, LogInResponse } from '../models/models'
+  import { createAccount, logIn } from '../net/requests'
+
+  export let onLogIn: (accessToken: string) => void
 
   let name = ''
   let errorMessage = ''
-  export let onLogIn: (accessToken: string) => void
 
   const register = async () => {
-    if (name.length < 5) {
-      errorMessage = 'Name must be at least 5 characters long'
-      return
-    }
-
-    // TODO prevent SQL injection here
-    let response = await fetch('http://localhost:8080/users/register', {
-      method: 'POST',
-      body: JSON.stringify({ name: name })
-    })
-
-    if (response.ok) {
-      const registerResponse = (await response.json()) as RegisterResponse
-      ensureNonEmpty(registerResponse.user_id)
-      await login(registerResponse.user_id)
+    const response = await createAccount(name)
+    if ('error' in response) {
+      errorMessage = response.error as string
     } else {
-      let error = await response.text()
-      errorMessage = `Failed to register user (${error})`
+      ensureNonEmpty(response.user_id)
+      await login(response.user_id)
     }
   }
 
   const login = async (user_id: string) => {
-    let response = await fetch('http://localhost:8080/users/login', {
-      method: 'POST',
-      body: JSON.stringify({ user_id: user_id })
-    })
-
-    if (response.ok) {
-      const loginResponse = (await response.json()) as LogInResponse
-      ensureNonEmpty(loginResponse.access_token)
-      onLogIn(loginResponse.access_token)
+    const response = await logIn(user_id)
+    if ('error' in response) {
+      errorMessage = response.error as string
     } else {
-      let error = await response.text()
-      errorMessage = `Failed to log in (${error})`
+      ensureNonEmpty(response.access_token)
+      onLogIn(response.access_token)
     }
   }
 
