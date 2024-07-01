@@ -62,7 +62,7 @@ func TestTodoItem_ChangeStatus(t *testing.T) {
 				User:        "fake_user",
 			}
 
-			err := item.ChangeStatus(tt.newStatus, util.FakeTime(2024, 6, 1))
+			err := item.ChangeStatus(tt.newStatus)
 			if err != nil || tt.error {
 				expected := fmt.Sprintf("invalid status transition from %s to %s", tt.oldStatus, tt.newStatus)
 				assert.Equal(t, expected, err.Error())

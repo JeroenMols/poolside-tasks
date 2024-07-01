@@ -4,7 +4,6 @@ import (
 	"backend/db"
 	"backend/net"
 	"backend/routes"
-	"backend/util"
 	"fmt"
 	"net/http"
 )
@@ -13,19 +12,9 @@ func main() {
 	mux := http.NewServeMux()
 	database := db.InMemoryDatabase()
 
-	users := routes.Users{
-		Database:     database,
-		GenerateUuid: util.GenerateRandomUuid,
-	}
-	todoLists := routes.TodoLists{
-		Database:     database,
-		GenerateUuid: util.GenerateRandomUuid,
-	}
-	todos := routes.Todos{
-		Database:     database,
-		GenerateUuid: util.GenerateRandomUuid,
-		CurrentTime:  util.GetCurrentTime,
-	}
+	users := routes.Users{Database: database}
+	todoLists := routes.TodoLists{Database: database}
+	todos := routes.Todos{Database: database}
 
 	mux.HandleFunc("POST /users/register", users.Register)
 	mux.HandleFunc("POST /users/login", users.Login)
@@ -37,9 +26,7 @@ func main() {
 	mux.HandleFunc("PUT /todos/{todo_id}", todos.Update)
 
 	// Debug route
-	debug := routes.Debug{
-		Database: database,
-	}
+	debug := routes.Debug{Database: database}
 	mux.HandleFunc("GET /debug", debug.Debug)
 
 	handler := net.CorsMiddleware(mux, "*")

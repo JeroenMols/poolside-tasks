@@ -3,15 +3,13 @@ package routes
 import (
 	"backend/db"
 	"backend/net"
-	"backend/util"
 	"fmt"
 	"net/http"
 	"regexp"
 )
 
 type Users struct {
-	Database     db.Database
-	GenerateUuid util.GenerateUuid
+	Database db.Database
 }
 
 func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
@@ -29,8 +27,7 @@ func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Printf("User name: %s\n", user.Name)
-	accountNumber := u.GenerateUuid()
-	u.Database.Users[accountNumber] = user.Name
+	accountNumber := u.Database.RegisterUser(user.Name)
 	response := registerResponse{
 		AccountNumber: accountNumber,
 	}
@@ -59,8 +56,7 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 	// TODO: return existing token if exists
 
 	fmt.Printf("Account number: %s\n", user.AccountNumber)
-	accessToken := u.GenerateUuid()
-	u.Database.AccessTokens[accessToken] = user.AccountNumber
+	accessToken := u.Database.Login(user.AccountNumber)
 	response := loginResponse{
 		AccessToken: accessToken,
 	}

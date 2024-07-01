@@ -4,16 +4,13 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/net"
-	"backend/util"
 	"net/http"
 	"regexp"
 	"time"
 )
 
 type Todos struct {
-	Database     db.Database
-	GenerateUuid util.GenerateUuid
-	CurrentTime  util.CurrentTime
+	Database db.Database
 }
 
 func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
@@ -40,7 +37,7 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	item := t.Database.CreateTodo(t.GenerateUuid(), body.ListId, body.Description, *accountNumber, t.CurrentTime())
+	item := t.Database.CreateTodo(body.ListId, body.Description, *accountNumber)
 
 	net.Success(w, models.TodoItem{
 		Id:          item.Id,
@@ -72,7 +69,7 @@ func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = item.ChangeStatus(body.Status, t.CurrentTime())
+	err = item.ChangeStatus(body.Status)
 	if err != nil {
 		net.HaltBadRequest(w, err.Error())
 		return

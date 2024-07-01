@@ -23,18 +23,16 @@ type TodoItem struct {
 	UpdatedAt   string `json:"updated_at"`
 }
 
-func (t *TodoDatabaseItem) ChangeStatus(newStatus string, time time.Time) error {
+func (t *TodoDatabaseItem) ChangeStatus(newStatus string) error {
 	if t.Status == "todo" || t.Status == "done" {
 		if newStatus == "ongoing" {
 			t.Status = newStatus
-			t.UpdatedAt = time
 			return nil
 		}
 		return errors.New(fmt.Sprintf("invalid status transition from %s to %s", t.Status, newStatus))
 	} else if t.Status == "ongoing" {
 		if newStatus == "done" || newStatus == "todo" {
 			t.Status = newStatus
-			t.UpdatedAt = time
 			return nil
 		}
 		return errors.New(fmt.Sprintf("invalid status transition from %s to %s", t.Status, newStatus))

@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 )
 
 type createListTestCase struct {
@@ -55,12 +56,14 @@ func TestTodoLists_Create(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
-			database := db.InMemoryDatabase()
+			database := db.TestDatabase(
+				func() time.Time { return util.FakeTime(2021, 1, 1) },
+				func() string { return "static_uuid" },
+			)
 			database.AccessTokens[validAccessToken] = existingAccount
 
 			todoList := TodoLists{
-				Database:     database,
-				GenerateUuid: func() string { return "static_uuid" },
+				Database: database,
 			}
 
 			request := httptest.NewRequest(http.MethodPost, "/todolists", strings.NewReader(tt.body))
@@ -134,7 +137,10 @@ func TestTodoLists_Get(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
-			database := db.InMemoryDatabase()
+			database := db.TestDatabase(
+				func() time.Time { return util.FakeTime(2021, 1, 1) },
+				func() string { return "static_uuid" },
+			)
 			database.Users[existingAccount] = "test user"
 			database.AccessTokens[validAccessToken] = existingAccount
 			database.TodoLists[todoListIdWithoutElements] = todoListIdWithoutElements
@@ -145,8 +151,7 @@ func TestTodoLists_Get(t *testing.T) {
 			}
 
 			todoList := TodoLists{
-				Database:     database,
-				GenerateUuid: func() string { return "static_uuid" },
+				Database: database,
 			}
 
 			request := httptest.NewRequest(http.MethodGet, "/todolists", nil)

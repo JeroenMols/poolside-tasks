@@ -2,9 +2,9 @@ package db
 
 import (
 	"backend/models"
+	"backend/util"
 	"errors"
 	"regexp"
-	"time"
 )
 
 type Database struct {
@@ -12,6 +12,8 @@ type Database struct {
 	AccessTokens map[string]string
 	TodoLists    map[string]string
 	TodoItems    map[string]models.TodoDatabaseItem
+	currentTime  util.CurrentTime
+	generateUuid util.GenerateUuid
 }
 
 func InMemoryDatabase() Database {
@@ -20,12 +22,37 @@ func InMemoryDatabase() Database {
 		AccessTokens: make(map[string]string),                  // accessToken -> accountNumber
 		TodoLists:    make(map[string]string),                  // listId -> listId
 		TodoItems:    make(map[string]models.TodoDatabaseItem), // todoId -> todo
+		currentTime:  util.GetCurrentTime,
+		generateUuid: util.GenerateRandomUuid,
+	}
+}
+
+func TestDatabase(generateTime util.CurrentTime, generateUuid util.GenerateUuid) Database {
+	return Database{
+		Users:        make(map[string]string),                  // accountNumber -> password
+		AccessTokens: make(map[string]string),                  // accessToken -> accountNumber
+		TodoLists:    make(map[string]string),                  // listId -> listId
+		TodoItems:    make(map[string]models.TodoDatabaseItem), // todoId -> todo
+		currentTime:  generateTime,
+		generateUuid: generateUuid,
 	}
 }
 
 const accessTokenRegex = `^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$`
 const listIdRegex = `^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$`
 const todoIdRegex = `^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$`
+
+func (d *Database) RegisterUser(name string) string {
+	accountNumber := d.generateUuid()
+	d.Users[accountNumber] = name
+	return accountNumber
+}
+
+func (d *Database) Login(accountNumber string) string {
+	accessToken := d.generateUuid()
+	d.AccessTokens[accessToken] = accountNumber
+	return accessToken
+}
 
 func (d *Database) Authorize(accessToken string) (*string, error) {
 	if !regexp.MustCompile(accessTokenRegex).MatchString(accessToken) {
@@ -38,22 +65,21 @@ func (d *Database) Authorize(accessToken string) (*string, error) {
 	return &accountNumber, nil
 }
 
-// TODO list id should become internal
-func (d *Database) CreateTodoList(uuid string) string {
-	listId := uuid
+func (d *Database) CreateTodoList() string {
+	listId := d.generateUuid()
 	d.TodoLists[listId] = listId
 	return listId
 }
 
-// TODO todo id and time should become internal
-func (d *Database) CreateTodo(uuid string, listId string, description string, user string, updatedAt time.Time) models.TodoDatabaseItem {
+func (d *Database) CreateTodo(listId string, description string, user string) models.TodoDatabaseItem {
+	itemId := d.generateUuid()
 	item := models.TodoDatabaseItem{
-		Id:          uuid,
+		Id:          itemId,
 		ListId:      listId,
 		Description: description,
 		Status:      "todo",
 		User:        user,
-		UpdatedAt:   updatedAt,
+		UpdatedAt:   d.currentTime(),
 	}
 
 	d.TodoItems[item.Id] = item
@@ -100,6 +126,7 @@ func (d *Database) UpdateTodo(todo *models.TodoDatabaseItem) error {
 	if !exists {
 		return errors.New("todo does not exist")
 	}
+	todo.UpdatedAt = d.currentTime()
 	d.TodoItems[todo.Id] = *todo
 	return nil
 }

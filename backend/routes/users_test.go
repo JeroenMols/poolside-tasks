@@ -2,12 +2,14 @@ package routes
 
 import (
 	"backend/db"
+	"backend/util"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 )
 
 type registerTestCase struct {
@@ -60,10 +62,12 @@ func TestUsers_Register(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
-			database := db.InMemoryDatabase()
+			database := db.TestDatabase(
+				func() time.Time { return util.FakeTime(2024, 6, 30) },
+				func() string { return "static_uuid" },
+			)
 			users := Users{
-				Database:     database,
-				GenerateUuid: func() string { return "static_uuid" },
+				Database: database,
 			}
 
 			request := httptest.NewRequest(http.MethodGet, "/users/register", strings.NewReader(tt.body))
@@ -124,13 +128,13 @@ func TestUsers_Login(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
-			database := db.InMemoryDatabase()
+			database := db.TestDatabase(
+				func() time.Time { return util.FakeTime(2021, 1, 1) },
+				func() string { return "static_uuid" },
+			)
 			database.Users[existingAccount] = "myname"
 			users := Users{
 				Database: database,
-				GenerateUuid: func() string {
-					return "static_uuid"
-				},
 			}
 
 			request := httptest.NewRequest(http.MethodGet, "/users/login", strings.NewReader(tt.body))

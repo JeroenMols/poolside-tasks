@@ -88,14 +88,15 @@ func TestTodo_CreateValidations(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
-			database := db.InMemoryDatabase()
+			database := db.TestDatabase(
+				func() time.Time { return util.FakeTime(2024, 6, 30) },
+				func() string { return "static_uuid" },
+			)
 			database.AccessTokens[validAccessToken] = existingAccount
 			database.TodoLists[existingTodoListId] = existingTodoListId
 
 			todos := Todos{
-				Database:     database,
-				GenerateUuid: func() string { return "static_uuid" },
-				CurrentTime:  func() time.Time { return util.FakeTime(2024, 6, 30) },
+				Database: database,
 			}
 
 			request := httptest.NewRequest(http.MethodPost, "/todos", strings.NewReader(tt.body))
@@ -150,14 +151,15 @@ func TestTodo_CreateLogic(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
-			database := db.InMemoryDatabase()
+			database := db.TestDatabase(
+				func() time.Time { return util.FakeTime(2024, 6, 30) },
+				func() string { return "static_uuid" },
+			)
 			database.AccessTokens[validAccessToken] = existingAccount
 			database.TodoLists[existingList] = existingList
 
 			todos := Todos{
-				Database:     database,
-				GenerateUuid: func() string { return "static_uuid" },
-				CurrentTime:  func() time.Time { return util.FakeTime(2024, 6, 30) },
+				Database: database,
 			}
 
 			request := httptest.NewRequest(http.MethodPost, "/todos", strings.NewReader(tt.body))
@@ -230,7 +232,10 @@ func TestTodo_UpdateValidations(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
-			database := db.InMemoryDatabase()
+			database := db.TestDatabase(
+				func() time.Time { return util.FakeTime(2024, 6, 30) },
+				func() string { return "static_uuid" },
+			)
 			database.AccessTokens[validAccessToken] = existingAccount
 			database.TodoLists[existingList] = existingList
 			database.TodoItems = map[string]models.TodoDatabaseItem{
@@ -238,9 +243,7 @@ func TestTodo_UpdateValidations(t *testing.T) {
 			}
 
 			todos := Todos{
-				Database:     database,
-				GenerateUuid: func() string { return "static_uuid" },
-				CurrentTime:  func() time.Time { return util.FakeTime(2024, 6, 30) },
+				Database: database,
 			}
 
 			request := httptest.NewRequest(http.MethodPost, "/todos", strings.NewReader(tt.body))
@@ -304,7 +307,10 @@ func TestTodos_UpdateLogic(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
-			database := db.InMemoryDatabase()
+			database := db.TestDatabase(
+				func() time.Time { return util.FakeTime(2024, 6, 30) },
+				func() string { return "static_uuid" },
+			)
 			database.AccessTokens[validAccessToken] = existingAccount
 			database.TodoLists[existingList] = existingList
 			database.TodoItems = map[string]models.TodoDatabaseItem{
@@ -312,9 +318,7 @@ func TestTodos_UpdateLogic(t *testing.T) {
 			}
 
 			todos := Todos{
-				Database:     database,
-				GenerateUuid: func() string { return "static_uuid" },
-				CurrentTime:  func() time.Time { return util.FakeTime(2024, 6, 30) },
+				Database: database,
 			}
 
 			request := httptest.NewRequest(http.MethodPost, "/todos", strings.NewReader(tt.body))

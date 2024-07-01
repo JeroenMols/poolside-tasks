@@ -4,15 +4,13 @@ import (
 	"backend/db"
 	"backend/models"
 	"backend/net"
-	"backend/util"
 	"fmt"
 	"net/http"
 	"time"
 )
 
 type TodoLists struct {
-	Database     db.Database
-	GenerateUuid util.GenerateUuid
+	Database db.Database
 }
 
 func (t *TodoLists) Create(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +24,7 @@ func (t *TodoLists) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	listId := t.Database.CreateTodoList(t.GenerateUuid())
+	listId := t.Database.CreateTodoList()
 	fmt.Printf("Creating new todo list %s\n", listId)
 
 	net.Success(w, listCreateResponse{TodoListId: listId})
