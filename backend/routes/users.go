@@ -9,10 +9,10 @@ import (
 )
 
 type Users struct {
-	database db.Database
+	database *db.Database
 }
 
-func CreateUsers(database db.Database) Users {
+func CreateUsers(database *db.Database) Users {
 	return Users{database: database}
 }
 

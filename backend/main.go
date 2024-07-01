@@ -12,9 +12,9 @@ func main() {
 	mux := http.NewServeMux()
 	database := db.InMemoryDatabase()
 
-	users := routes.CreateUsers(database)
-	todoLists := routes.CreateTodoLists(database)
-	todos := routes.CreateTodos(database)
+	users := routes.CreateUsers(&database)
+	todoLists := routes.CreateTodoLists(&database)
+	todos := routes.CreateTodos(&database)
 
 	mux.HandleFunc("POST /users/register", users.Register)
 	mux.HandleFunc("POST /users/login", users.Login)
@@ -26,7 +26,7 @@ func main() {
 	mux.HandleFunc("PUT /todos/{todo_id}", todos.Update)
 
 	// Debug route
-	debug := routes.Debug{Database: database}
+	debug := routes.CreateDebug(&database)
 	mux.HandleFunc("GET /debug", debug.Debug)
 
 	handler := net.CorsMiddleware(mux, "*")

@@ -87,7 +87,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 			database.AccessTokens[fakeToken] = db.AccessToken{UserId: fakeUserId, Token: fakeToken}
 			database.TodoLists[fakeTodoListId] = db.TodoList{Id: fakeTodoListId}
 
-			todos := CreateTodos(database)
+			todos := CreateTodos(&database)
 
 			request := httptest.NewRequest(http.MethodPost, "/todos", strings.NewReader(tt.body))
 			request.Header.Set("Authorization", tt.accessToken)
@@ -143,7 +143,7 @@ func TestTodo_CreateLogic(t *testing.T) {
 			database.AccessTokens[fakeToken] = db.AccessToken{UserId: fakeUserId, Token: fakeToken}
 			database.TodoLists[fakeTodoListId] = db.TodoList{Id: fakeTodoListId}
 
-			todos := CreateTodos(database)
+			todos := CreateTodos(&database)
 
 			request := httptest.NewRequest(http.MethodPost, "/todos", strings.NewReader(tt.body))
 			request.Header.Add("Authorization", tt.accessToken)
@@ -216,7 +216,7 @@ func TestTodo_UpdateValidations(t *testing.T) {
 				fakeTodoId: {Id: fakeTodoId, ListId: fakeTodoListId, Description: "first todo", Status: "todo", UserId: fakeUserId, UpdatedAt: util.FakeTime(2024, 1, 1)},
 			}
 
-			todos := CreateTodos(database)
+			todos := CreateTodos(&database)
 
 			request := httptest.NewRequest(http.MethodPost, "/todos", strings.NewReader(tt.body))
 			request.SetPathValue("todo_id", tt.todoId)
@@ -282,7 +282,7 @@ func TestTodos_UpdateLogic(t *testing.T) {
 				fakeTodoId: {Id: fakeTodoId, ListId: fakeTodoListId, Description: "first todo", Status: "todo", UserId: fakeUserId, UpdatedAt: util.FakeTime(2000, 1, 1)},
 			}
 
-			todos := CreateTodos(database)
+			todos := CreateTodos(&database)
 
 			request := httptest.NewRequest(http.MethodPost, "/todos", strings.NewReader(tt.body))
 			request.SetPathValue("todo_id", tt.todoId)

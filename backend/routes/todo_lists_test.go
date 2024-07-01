@@ -56,7 +56,7 @@ func TestTodoLists_Create(t *testing.T) {
 			)
 			database.AccessTokens[fakeToken] = db.AccessToken{UserId: fakeUserId, Token: fakeToken}
 
-			todoList := CreateTodoLists(database)
+			todoList := CreateTodoLists(&database)
 
 			request := httptest.NewRequest(http.MethodPost, "/todolists", strings.NewReader(tt.body))
 			request.Header.Set("Authorization", tt.accessToken)
@@ -136,7 +136,7 @@ func TestTodoLists_Get(t *testing.T) {
 			}
 			database.TodoItemOrder = []string{"id1", "id2"}
 
-			todoList := CreateTodoLists(database)
+			todoList := CreateTodoLists(&database)
 
 			request := httptest.NewRequest(http.MethodGet, "/todolists", nil)
 			request.SetPathValue("list_id", tt.todoListId)

@@ -7,33 +7,36 @@ import (
 )
 
 type Database struct {
-	Users        map[string]User
-	AccessTokens map[string]AccessToken
-	TodoLists    map[string]TodoList
-	TodoItems    map[string]TodoItem
-	currentTime  util.CurrentTime
-	generateUuid util.GenerateUuid
+	Users         map[string]User
+	AccessTokens  map[string]AccessToken
+	TodoLists     map[string]TodoList
+	TodoItems     map[string]TodoItem
+	TodoItemOrder []string
+	currentTime   util.CurrentTime
+	generateUuid  util.GenerateUuid
 }
 
 func InMemoryDatabase() Database {
 	return Database{
-		Users:        make(map[string]User),
-		AccessTokens: make(map[string]AccessToken),
-		TodoLists:    make(map[string]TodoList),
-		TodoItems:    make(map[string]TodoItem),
-		currentTime:  util.GetCurrentTime,
-		generateUuid: util.GenerateRandomUuid,
+		Users:         make(map[string]User),
+		AccessTokens:  make(map[string]AccessToken),
+		TodoLists:     make(map[string]TodoList),
+		TodoItems:     make(map[string]TodoItem),
+		TodoItemOrder: make([]string, 1000),
+		currentTime:   util.GetCurrentTime,
+		generateUuid:  util.GenerateRandomUuid,
 	}
 }
 
 func TestDatabase(generateTime util.CurrentTime, generateUuid util.GenerateUuid) Database {
 	return Database{
-		Users:        make(map[string]User),
-		AccessTokens: make(map[string]AccessToken),
-		TodoLists:    make(map[string]TodoList),
-		TodoItems:    make(map[string]TodoItem),
-		currentTime:  generateTime,
-		generateUuid: generateUuid,
+		Users:         make(map[string]User),
+		AccessTokens:  make(map[string]AccessToken),
+		TodoLists:     make(map[string]TodoList),
+		TodoItems:     make(map[string]TodoItem),
+		TodoItemOrder: make([]string, 1000),
+		currentTime:   generateTime,
+		generateUuid:  generateUuid,
 	}
 }
 
@@ -97,6 +100,7 @@ func (d *Database) CreateTodo(listId string, description string, user string) *T
 	}
 
 	d.TodoItems[item.Id] = item
+	d.TodoItemOrder = append(d.TodoItemOrder, item.Id)
 	return &item
 }
 
@@ -133,7 +137,8 @@ func (d *Database) GetTodos(listId string) (*[]TodoItem, error) {
 	}
 
 	var items []TodoItem
-	for _, item := range d.TodoItems {
+	for _, todoId := range d.TodoItemOrder {
+		item := d.TodoItems[todoId]
 		if item.ListId == todoList.Id {
 			items = append(items, item)
 		}

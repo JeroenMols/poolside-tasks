@@ -7,9 +7,13 @@ import (
 )
 
 type Debug struct {
-	Database db.Database
+	database *db.Database
+}
+
+func CreateDebug(database *db.Database) Debug {
+	return Debug{database: database}
 }
 
 func (u *Debug) Debug(w http.ResponseWriter, _ *http.Request) {
-	net.Success(w, u.Database)
+	net.Success(w, u.database)
 }
