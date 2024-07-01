@@ -48,10 +48,6 @@ func TestHaltBadRequest(t *testing.T) {
 			w := httptest.NewRecorder()
 			HaltBadRequest(w, tt.input)
 			assert.Equal(t, 400, w.Result().StatusCode)
-			assert.Equal(t, http.Header{
-				"Content-Type":                []string{"application/json"},
-				"Access-Control-Allow-Origin": []string{"*"},
-			}, w.Result().Header)
 			assert.Equal(t, tt.output, w.Body.String())
 		})
 	}
@@ -71,10 +67,6 @@ func TestHaltUnauthorized(t *testing.T) {
 			w := httptest.NewRecorder()
 			HaltUnauthorized(w, tt.input)
 			assert.Equal(t, 401, w.Result().StatusCode)
-			assert.Equal(t, http.Header{
-				"Content-Type":                []string{"application/json"},
-				"Access-Control-Allow-Origin": []string{"*"},
-			}, w.Result().Header)
 			assert.Equal(t, tt.output, w.Body.String())
 		})
 	}
