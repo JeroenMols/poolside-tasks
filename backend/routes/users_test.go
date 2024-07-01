@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	"backend/util"
 	"fmt"
+	"github.com/lithammer/shortuuid/v4"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -64,7 +65,7 @@ func TestUsers_Register(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			database := db.TestDatabase(
 				func() time.Time { return util.FakeTime(2024, 6, 30) },
-				func() string { return "static_uuid" },
+				func(string) string { return "static_uuid" },
 			)
 			users := CreateUsers(database)
 
@@ -89,6 +90,9 @@ type loginTestCase struct {
 }
 
 func TestUsers_Login(t *testing.T) {
+
+	blab := shortuuid.New()
+	fmt.Println(blab)
 
 	const existingAccount = "f2d869a8-e5bc-4fbf-ad71-e0d154b5d433"
 	const nonExistingAccount = "f2d869a8-e5bc-4fbf-ad71-e0d154b5d434"
@@ -128,7 +132,7 @@ func TestUsers_Login(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			database := db.TestDatabase(
 				func() time.Time { return util.FakeTime(2021, 1, 1) },
-				func() string { return "static_uuid" },
+				func(string) string { return "static_uuid" },
 			)
 			database.Users[existingAccount] = db.User{Id: existingAccount, Name: "myname"}
 			users := CreateUsers(database)

@@ -1,15 +1,16 @@
 package util
 
 import (
-	"github.com/google/uuid"
+	"fmt"
+	"github.com/lithammer/shortuuid/v4"
 	"time"
 )
 
-// TODO: support short human readible uuids e.g. list_abh135asdfjkl
-type GenerateUuid func() string
+// GenerateUuid TODO: support short human readable uuids e.g. list_abh135asdfjkl
+type GenerateUuid func(string) string
 
-func GenerateRandomUuid() string {
-	return uuid.New().String()
+func GenerateRandomUuid(prefix string) string {
+	return fmt.Sprintf("%s_%s", prefix, shortuuid.New())
 }
 
 type CurrentTime func() time.Time

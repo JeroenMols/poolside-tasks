@@ -37,13 +37,13 @@ func TestDatabase(generateTime util.CurrentTime, generateUuid util.GenerateUuid)
 	}
 }
 
-const accessTokenRegex = `^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$`
-const listIdRegex = `^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$`
-const todoIdRegex = `^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$`
+const accessTokenRegex = `^tkn_[23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxy=]{22}$`
+const listIdRegex = `^lst_[23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxy=]{22}$`
+const todoIdRegex = `^tdo_[23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxy=]{22}$`
 
 func (d *Database) CreateUser(name string) *User {
 	user := User{
-		Id:   d.generateUuid(),
+		Id:   d.generateUuid("usr"),
 		Name: name,
 	}
 	d.Users[user.Id] = user
@@ -53,7 +53,7 @@ func (d *Database) CreateUser(name string) *User {
 func (d *Database) CreateAccessToken(accountNumber string) *AccessToken {
 	accessToken := AccessToken{
 		UserId: accountNumber,
-		Token:  d.generateUuid(),
+		Token:  d.generateUuid("tkn"),
 	}
 	d.AccessTokens[accessToken.Token] = accessToken
 	return &accessToken
@@ -72,7 +72,7 @@ func (d *Database) GetAccessToken(token string) (*AccessToken, error) {
 
 func (d *Database) CreateTodoList() *TodoList {
 	todoList := TodoList{
-		Id: d.generateUuid(),
+		Id: d.generateUuid("lst"),
 	}
 	d.TodoLists[todoList.Id] = todoList
 	return &todoList
@@ -80,7 +80,7 @@ func (d *Database) CreateTodoList() *TodoList {
 
 func (d *Database) CreateTodo(listId string, description string, user string) *TodoItem {
 	item := TodoItem{
-		Id:          d.generateUuid(),
+		Id:          d.generateUuid("tdo"),
 		ListId:      listId,
 		Description: description,
 		Status:      "todo",

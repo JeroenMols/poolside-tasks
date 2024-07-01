@@ -21,15 +21,10 @@ type createListTestCase struct {
 }
 
 func TestTodoLists_Create(t *testing.T) {
-
-	const existingAccount = "f2d869a8-e5bc-4fbf-ad71-0000000000000"
-	const validAccessToken = "f2d869a8-e5bc-4fbf-ad71-222222222222"
-	const nonExistingAccessToken = "f2d869a8-e5bc-4fbf-ad71-333333333333"
-
 	tests := []createListTestCase{
 		{
 			description:   "Invalid body",
-			accessToken:   validAccessToken,
+			accessToken:   fakeToken,
 			body:          `{"invalid":"body"}`,
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid body"}`,
@@ -37,7 +32,7 @@ func TestTodoLists_Create(t *testing.T) {
 		},
 		{
 			description:   "Access token does not exist",
-			accessToken:   nonExistingAccessToken,
+			accessToken:   fakeWrongToken,
 			body:          `{}`,
 			responseCode:  http.StatusUnauthorized,
 			responseBody:  `{"error":"account not found"}`,
@@ -45,7 +40,7 @@ func TestTodoLists_Create(t *testing.T) {
 		},
 		{
 			description:   "Create new todo list",
-			accessToken:   validAccessToken,
+			accessToken:   fakeToken,
 			body:          `{}`,
 			responseCode:  http.StatusOK,
 			responseBody:  `{"todo_list_id":"static_uuid"}`,
@@ -57,9 +52,9 @@ func TestTodoLists_Create(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			database := db.TestDatabase(
 				func() time.Time { return util.FakeTime(2021, 1, 1) },
-				func() string { return "static_uuid" },
+				func(string) string { return "static_uuid" },
 			)
-			database.AccessTokens[validAccessToken] = db.AccessToken{UserId: existingAccount, Token: validAccessToken}
+			database.AccessTokens[fakeToken] = db.AccessToken{UserId: fakeUserId, Token: fakeToken}
 
 			todoList := CreateTodoLists(database)
 
@@ -85,48 +80,41 @@ type getListTestCase struct {
 }
 
 func TestTodoLists_Get(t *testing.T) {
-
-	const existingAccount = "f2d869a8-e5bc-4fbf-ad71-0000000000000"
-	const validAccessToken = "f2d869a8-e5bc-4fbf-ad71-111111111111"
-	const nonExistingAccessToken = "f2d869a8-e5bc-4fbf-ad71-2222222222222"
-
-	const todoListIdWithoutElements = "f2d869a8-e5bc-4fbf-ad71-333333333333"
-	const todoListIdWithElements = "f2d869a8-e5bc-4fbf-ad71-444444444444"
-	const nonExistingTodoListId = "f2d869a8-e5bc-4fbf-ad71-555555555555"
+	const fakeNoElementsTodoListId = fakeTodoListId2
 
 	tests := []getListTestCase{
 		{
 			description:  "Invalid access token",
-			accessToken:  nonExistingAccessToken,
-			todoListId:   todoListIdWithoutElements,
+			accessToken:  "not-an-access-token",
+			todoListId:   fakeNoElementsTodoListId,
 			responseCode: http.StatusUnauthorized,
 			responseBody: `{"error":"invalid access token"}`,
 		},
 		{
 			description:  "Invalid todo list id parameter",
-			accessToken:  validAccessToken,
+			accessToken:  fakeToken,
 			todoListId:   `invalid-list-id`,
 			responseCode: http.StatusBadRequest,
 			responseBody: `{"error":"invalid todo list"}`,
 		},
 		{
 			description:  "Todo list does not exist",
-			accessToken:  validAccessToken,
-			todoListId:   nonExistingTodoListId,
+			accessToken:  fakeToken,
+			todoListId:   fakeWrongTodoListId,
 			responseCode: http.StatusBadRequest,
 			responseBody: `{"error":"todo list does not exist"}`,
 		},
 		{
 			description:  "Get empty todo list",
-			accessToken:  validAccessToken,
-			todoListId:   todoListIdWithoutElements,
+			accessToken:  fakeToken,
+			todoListId:   fakeNoElementsTodoListId,
 			responseCode: http.StatusOK,
 			responseBody: `{"todos":[]}`,
 		},
 		{
 			description:  "Get todo list",
-			accessToken:  validAccessToken,
-			todoListId:   todoListIdWithElements,
+			accessToken:  fakeToken,
+			todoListId:   fakeTodoListId,
 			responseCode: http.StatusOK,
 			responseBody: `{"todos":[{"id":"id1","created_by":"test user","description":"first todo","status":"todo","updated_at":"2024-01-01T00:00:00+00:00"},{"id":"id2","created_by":"test user","description":"second todo","status":"ongoing","updated_at":"2023-01-01T00:00:00+00:00"}]}`,
 		},
@@ -136,15 +124,15 @@ func TestTodoLists_Get(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			database := db.TestDatabase(
 				func() time.Time { return util.FakeTime(2021, 1, 1) },
-				func() string { return "static_uuid" },
+				func(string) string { return "static_uuid" },
 			)
-			database.Users[existingAccount] = db.User{Id: existingAccount, Name: "test user"}
-			database.AccessTokens[validAccessToken] = db.AccessToken{UserId: existingAccount, Token: validAccessToken}
-			database.TodoLists[todoListIdWithoutElements] = db.TodoList{Id: todoListIdWithoutElements}
-			database.TodoLists[todoListIdWithElements] = db.TodoList{Id: todoListIdWithElements}
+			database.Users[fakeUserId] = db.User{Id: fakeUserId, Name: "test user"}
+			database.AccessTokens[fakeToken] = db.AccessToken{UserId: fakeUserId, Token: fakeToken}
+			database.TodoLists[fakeNoElementsTodoListId] = db.TodoList{Id: fakeNoElementsTodoListId}
+			database.TodoLists[fakeTodoListId] = db.TodoList{Id: fakeTodoListId}
 			database.TodoItems = map[string]db.TodoItem{
-				"id1": {Id: "id1", ListId: todoListIdWithElements, Description: "first todo", Status: "todo", UserId: existingAccount, UpdatedAt: util.FakeTime(2024, 1, 1)},
-				"id2": {Id: "id2", ListId: todoListIdWithElements, Description: "second todo", Status: "ongoing", UserId: existingAccount, UpdatedAt: util.FakeTime(2023, 1, 1)},
+				"id1": {Id: "id1", ListId: fakeTodoListId, Description: "first todo", Status: "todo", UserId: fakeUserId, UpdatedAt: util.FakeTime(2024, 1, 1)},
+				"id2": {Id: "id2", ListId: fakeTodoListId, Description: "second todo", Status: "ongoing", UserId: fakeUserId, UpdatedAt: util.FakeTime(2023, 1, 1)},
 			}
 
 			todoList := CreateTodoLists(database)

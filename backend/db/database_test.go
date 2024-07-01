@@ -8,8 +8,8 @@ import (
 func TestDatabase_GetAccessToken(t *testing.T) {
 	database := InMemoryDatabase()
 
-	const validAccessToken = "f2d869a8-e5bc-4fbf-ad71-111111111111"
-	const nonExistingAccessToken = "f2d869a8-e5bc-4fbf-ad71-2222222222222"
+	const validAccessToken = "tkn_aaaaaaaaaaaaaaaaaaaaaa"
+	const nonExistingAccessToken = "tkn_bbbbbbbbbbbbbbbbbbbbbb"
 
 	fakeToken := AccessToken{UserId: "valid_account", Token: validAccessToken}
 	database.AccessTokens[validAccessToken] = fakeToken
