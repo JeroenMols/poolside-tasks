@@ -10,8 +10,11 @@ test('end 2 end test', async () => {
 
   expect(isPackaged).toBe(false)
 
+
+  const window = await electronApp.firstWindow()  
+  
   // Login
-  const window = await electronApp.firstWindow()
+  await window.getByText('Create Account').isVisible()
   await window.getByRole('textbox').fill('jeroen')
   await window.screenshot({ path: 'screenshots/intro.png' })
 
