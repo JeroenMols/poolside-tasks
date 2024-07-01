@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ensureNonEmpty } from '../utils/assertions'
   import ErrorBanner from './error-banner.svelte'
+  import type { RegisterResponse, LogInResponse } from '../models/models'
 
   let name = ''
   let errorMessage = ''

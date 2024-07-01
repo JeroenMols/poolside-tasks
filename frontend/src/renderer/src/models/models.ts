@@ -1,25 +1,25 @@
-type RegisterResponse = {
-    account_number: string
+export type RegisterResponse = {
+  account_number: string
 }
 
-type LogInResponse = {
-    access_token: string
+export type LogInResponse = {
+  access_token: string
 }
 
-type CreateTodoListResponse = {
-    todo_list_id: string
+export type CreateTodoListResponse = {
+  todo_list_id: string
 }
 
-type TodoListReponses = {
-    todos: TodoItem[]
+export type TodoListReponses = {
+  todos: TodoItem[]
 }
 
-type TodoItem = {
-    id: string
-    created_by: string
-    description: string
-    status: TodoStatus
-    updated_at: string
+export type TodoItem = {
+  id: string
+  created_by: string
+  description: string
+  status: TodoStatus
+  updated_at: string
 }
 
-type TodoStatus = 'todo' | 'ongoing' | 'done'
+export type TodoStatus = 'todo' | 'ongoing' | 'done'

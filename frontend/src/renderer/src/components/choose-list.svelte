@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { CreateTodoListResponse } from '../models/models'
   import { ensureNonEmpty } from '../utils/assertions'
   import ErrorBanner from './error-banner.svelte'
 
