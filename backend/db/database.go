@@ -22,7 +22,7 @@ func InMemoryDatabase() Database {
 		AccessTokens:  make(map[string]AccessToken),
 		TodoLists:     make(map[string]TodoList),
 		TodoItems:     make(map[string]TodoItem),
-		TodoItemOrder: make([]string, 1000),
+		TodoItemOrder: []string{},
 		currentTime:   util.GetCurrentTime,
 		generateUuid:  util.GenerateRandomUuid,
 	}
