@@ -42,18 +42,19 @@ func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Logging in user")
 
-	user, err := net.ParseBody[loginRequest](r)
+	body, err := net.ParseBody[loginRequest](r)
 	if err != nil {
 		net.HaltBadRequest(w, err.Error())
 		return
 	}
 
-	if !regexp.MustCompile(accountNumberRegex).MatchString(user.AccountNumber) {
+	if !regexp.MustCompile(accountNumberRegex).MatchString(body.AccountNumber) {
 		net.HaltBadRequest(w, "invalid account number")
 		return
 	}
 
-	if u.database.Users[user.AccountNumber] == "" {
+	user, exists := u.database.Users[body.AccountNumber]
+	if !exists {
 		net.HaltBadRequest(w, "account not found")
 		return
 	}

@@ -17,7 +17,7 @@ type registerTestCase struct {
 	body          string
 	responseCode  int
 	responseBody  string
-	databaseUsers map[string]string
+	databaseUsers map[string]db.User
 }
 
 func TestUsers_Register(t *testing.T) {
@@ -28,35 +28,35 @@ func TestUsers_Register(t *testing.T) {
 			body:          `{"name":"myname"}`,
 			responseCode:  http.StatusOK,
 			responseBody:  `{"account_number":"static_uuid"}`,
-			databaseUsers: map[string]string{"static_uuid": "myname"},
+			databaseUsers: map[string]db.User{"static_uuid": {AccountNumber: "static_uuid", Name: "myname"}},
 		},
 		{
 			description:   "Invalid body",
 			body:          `{"invalid":"body"}`,
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid body"}`,
-			databaseUsers: make(map[string]string),
+			databaseUsers: make(map[string]db.User),
 		},
 		{
 			description:   "User name too short",
 			body:          `{"name":"s"}`,
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid user name"}`,
-			databaseUsers: make(map[string]string),
+			databaseUsers: make(map[string]db.User),
 		},
 		{
 			description:   "User name invalid character",
 			body:          `{"name":"name-%*("}`,
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid user name"}`,
-			databaseUsers: make(map[string]string),
+			databaseUsers: make(map[string]db.User),
 		},
 		{
 			description:   "User name too long",
 			body:          fmt.Sprintf(`{"name":"%s"}`, strings.Repeat("a", 33)),
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid user name"}`,
-			databaseUsers: make(map[string]string),
+			databaseUsers: make(map[string]db.User),
 		},
 	}
 
@@ -130,7 +130,7 @@ func TestUsers_Login(t *testing.T) {
 				func() time.Time { return util.FakeTime(2021, 1, 1) },
 				func() string { return "static_uuid" },
 			)
-			database.Users[existingAccount] = "myname"
+			database.Users[existingAccount] = db.User{AccountNumber: existingAccount, Name: "myname"}
 			users := CreateUsers(database)
 
 			request := httptest.NewRequest(http.MethodGet, "/users/login", strings.NewReader(tt.body))

@@ -2,11 +2,9 @@ package routes
 
 import (
 	"backend/db"
-	"backend/models"
 	"backend/net"
 	"net/http"
 	"regexp"
-	"time"
 )
 
 type Todos struct {
@@ -43,13 +41,7 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 
 	item := t.database.CreateTodo(body.ListId, body.Description, *accountNumber)
 
-	net.Success(w, models.TodoItem{
-		Id:          item.Id,
-		CreatedBy:   t.database.Users[*accountNumber],
-		Description: item.Description,
-		Status:      item.Status,
-		UpdatedAt:   item.UpdatedAt.Format(time.RFC3339),
-	})
+	net.Success(w, item.ToTodoItem(t.database.Users[*accountNumber].Name))
 }
 
 func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
@@ -80,7 +72,7 @@ func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
 	}
 	t.database.UpdateTodo(item)
 
-	net.Success(w, item.ToTodoItem(t.database.Users[*accountNumber]))
+	net.Success(w, item.ToTodoItem(t.database.Users[*accountNumber].Name))
 }
 
 type todoCreateRequest struct {

@@ -139,7 +139,7 @@ func TestTodoLists_Get(t *testing.T) {
 				func() time.Time { return util.FakeTime(2021, 1, 1) },
 				func() string { return "static_uuid" },
 			)
-			database.Users[existingAccount] = "test user"
+			database.Users[existingAccount] = db.User{AccountNumber: existingAccount, Name: "test user"}
 			database.AccessTokens[validAccessToken] = existingAccount
 			database.TodoLists[todoListIdWithoutElements] = todoListIdWithoutElements
 			database.TodoLists[todoListIdWithElements] = todoListIdWithElements

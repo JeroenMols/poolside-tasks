@@ -7,8 +7,13 @@ import (
 	"regexp"
 )
 
+type User struct {
+	AccountNumber string
+	Name          string
+}
+
 type Database struct {
-	Users        map[string]string
+	Users        map[string]User
 	AccessTokens map[string]string
 	TodoLists    map[string]string
 	TodoItems    map[string]models.TodoDatabaseItem
@@ -18,7 +23,7 @@ type Database struct {
 
 func InMemoryDatabase() Database {
 	return Database{
-		Users:        make(map[string]string),                  // accountNumber -> password
+		Users:        make(map[string]User),                    // accountNumber -> password
 		AccessTokens: make(map[string]string),                  // accessToken -> accountNumber
 		TodoLists:    make(map[string]string),                  // listId -> listId
 		TodoItems:    make(map[string]models.TodoDatabaseItem), // todoId -> todo
@@ -29,7 +34,7 @@ func InMemoryDatabase() Database {
 
 func TestDatabase(generateTime util.CurrentTime, generateUuid util.GenerateUuid) Database {
 	return Database{
-		Users:        make(map[string]string),                  // accountNumber -> password
+		Users:        make(map[string]User),                    // accountNumber -> password
 		AccessTokens: make(map[string]string),                  // accessToken -> accountNumber
 		TodoLists:    make(map[string]string),                  // listId -> listId
 		TodoItems:    make(map[string]models.TodoDatabaseItem), // todoId -> todo
@@ -44,7 +49,7 @@ const todoIdRegex = `^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$`
 
 func (d *Database) RegisterUser(name string) string {
 	accountNumber := d.generateUuid()
-	d.Users[accountNumber] = name
+	d.Users[accountNumber] = User{AccountNumber: accountNumber, Name: name}
 	return accountNumber
 }
 
