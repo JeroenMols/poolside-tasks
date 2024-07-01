@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import ErrorBanner from './error-banner.svelte'
-  import type { TodoItem, TodoListReponses, TodoStatus } from '../net/models'
+  import type { TodoItem, TodoStatus } from '../net/models'
+  import { createTodoItem, getTodoList, updateTodoItem } from '../net/requests'
 
   export let accessToken: string = ''
   export let todoListId: string = ''
@@ -15,61 +16,36 @@
   })
 
   const getTodosForList = async () => {
-    let response = await fetch(`http://localhost:8080/todolists/${todoListId}`, {
-      headers: { Authorization: `${accessToken}` },
-      method: 'GET'
-    })
-
-    if (response.ok) {
-      const registerResponse = (await response.json()) as TodoListReponses
-      // TODO validate result here
-      todos = registerResponse.todos
+    let response = await getTodoList(accessToken, todoListId)
+    if ('error' in response) {
+      errorMessage = response.error as string
     } else {
-      const error = await response.text()
-      errorMessage = `Failed to get todos (${error})`
+      // TODO validate result here
+      todos = response.todos
     }
   }
 
   const createTodo = async () => {
-    let response = await fetch('http://localhost:8080/todos', {
-      headers: { Authorization: `${accessToken}` },
-      method: 'POST',
-      body: JSON.stringify({ description: newTodoDescription, todo_list_id: todoListId })
-    })
-
-    if (response.ok) {
-      const item = (await response.json()) as TodoItem
-      // TODO validate result here
-      newTodoDescription = ''
-      todos = [...todos, item]
+    let response = await createTodoItem(accessToken, todoListId, newTodoDescription)
+    if ('error' in response) {
+      errorMessage = response.error as string
     } else {
-      const error = await response.text()
-      errorMessage = `Failed to create todo (${error})`
+      newTodoDescription = ''
+      todos = [...todos, response]
     }
-
     await getTodosForList()
   }
 
   const updateTodo = async (todo: TodoItem, newStatus: TodoStatus) => {
-    let response = await fetch(`http://localhost:8080/todos/${todo.id}`, {
-      headers: { Authorization: `${accessToken}` },
-      method: 'PUT',
-      body: JSON.stringify({ status: newStatus })
-    })
-
-    if (response.ok) {
-      const item = (await response.json()) as TodoItem
-      // TODO validate result here
-      newTodoDescription = ''
-      todos = [...todos, item]
+    let response = await updateTodoItem(accessToken, todo.id, newStatus)
+    if ('error' in response) {
+      errorMessage = response.error as string
     } else {
-      const error = await response.text()
-      errorMessage = `Failed to update todo (${error})`
+      await getTodosForList()
     }
-
-    await getTodosForList()
   }
 
+  // Note: this code is intentionally cryptic to demonstrate backend validation
   const prevStatus = async (todo: TodoItem) => {
     const allowedStatus: TodoStatus[] = ['todo', 'ongoing', 'done']
     const previousStatus =

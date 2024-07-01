@@ -13,8 +13,7 @@
     if ('error' in response) {
       errorMessage = response.error as string
     } else {
-      ensureNonEmpty(response.user_id)
-      await login(response.user_id)
+      await login(ensureNonEmpty(response.user_id))
     }
   }
 
@@ -23,8 +22,7 @@
     if ('error' in response) {
       errorMessage = response.error as string
     } else {
-      ensureNonEmpty(response.access_token)
-      onLogIn(response.access_token)
+      onLogIn(ensureNonEmpty(response.access_token))
     }
   }
 

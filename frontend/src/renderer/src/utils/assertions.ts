@@ -1,4 +1,4 @@
-export function ensureNonEmpty(value: string): void {
+export function ensureNonEmpty(value: string): string {
   if (value === undefined) {
     throw new Error('Expected string to be defined')
   }
@@ -8,4 +8,5 @@ export function ensureNonEmpty(value: string): void {
   if (value === '') {
     throw new Error('Expected string to be not empty')
   }
+  return value
 }

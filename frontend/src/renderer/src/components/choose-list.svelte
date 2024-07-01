@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { CreateTodoListResponse } from '../net/models'
+  import { createTodoList, getTodoList } from '../net/requests'
   import { ensureNonEmpty } from '../utils/assertions'
   import ErrorBanner from './error-banner.svelte'
 
@@ -10,33 +10,21 @@
   let errorMessage = ''
 
   const createList = async () => {
-    let response = await fetch('http://localhost:8080/todolists', {
-      headers: { Authorization: `${accessToken}` },
-      method: 'POST',
-      body: '{}'
-    })
-
-    if (response.ok) {
-      const registerResponse = (await response.json()) as CreateTodoListResponse
-      ensureNonEmpty(registerResponse.todo_list_id)
-      onListSelected(registerResponse.todo_list_id)
+    const response = await createTodoList(accessToken)
+    if ('error' in response) {
+      errorMessage = response.error as string
     } else {
-      let error = await response.text()
-      errorMessage = `Failed to create todo list (${error})`
+      onListSelected(ensureNonEmpty(response.todo_list_id))
     }
   }
 
   const checkListExists = async () => {
-    let response = await fetch(`http://localhost:8080/todolists/${todoListId}`, {
-      headers: { Authorization: `${accessToken}` },
-      method: 'GET'
-    })
-
-    if (response.ok) {
-      onListSelected(todoListId)
+    const response = await getTodoList(accessToken, todoListId)
+    if ('error' in response) {
+      todoListId = ''
+      errorMessage = response.error as string
     } else {
-      let error = await response.text()
-      errorMessage = `Failed to join todo list (${error})`
+      onListSelected(ensureNonEmpty(response.todo_list_id))
     }
   }
 

@@ -18,9 +18,18 @@ export type CreateTodoListResponse = {
   todo_list_id: string
 }
 
-export type TodoListReponses = {
+export type GetTodoListResponse = {
   todo_list_id: string
   todos: TodoItem[]
+}
+
+export type CreateTodoRequest = {
+  todo_list_id: string
+  description: string
+}
+
+export type UpdateTodoRequest = {
+  status: TodoStatus
 }
 
 export type TodoItem = {
