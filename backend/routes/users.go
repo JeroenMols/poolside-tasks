@@ -19,21 +19,21 @@ func CreateUsers(database db.Database) Users {
 func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Registering new user")
 
-	user, err := net.ParseBody[registerRequest](r)
+	body, err := net.ParseBody[registerRequest](r)
 	if err != nil {
 		net.HaltBadRequest(w, err.Error())
 		return
 	}
 
-	if !regexp.MustCompile(userNameRegex).MatchString(user.Name) {
+	if !regexp.MustCompile(userNameRegex).MatchString(body.Name) {
 		net.HaltBadRequest(w, "invalid user name")
 		return
 	}
 
-	fmt.Printf("User name: %s\n", user.Name)
-	accountNumber := u.database.RegisterUser(user.Name)
+	fmt.Printf("User name: %s\n", body.Name)
+	user := u.database.CreateUser(body.Name)
 	response := registerResponse{
-		AccountNumber: accountNumber,
+		AccountNumber: user.AccountNumber,
 	}
 
 	net.Success(w, response)

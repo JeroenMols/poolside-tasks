@@ -56,14 +56,20 @@ const accessTokenRegex = `^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$`
 const listIdRegex = `^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$`
 const todoIdRegex = `^[a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}$`
 
-func (d *Database) RegisterUser(name string) string {
-	accountNumber := d.generateUuid()
-	d.Users[accountNumber] = User{AccountNumber: accountNumber, Name: name}
-	return accountNumber
+func (d *Database) CreateUser(name string) *User {
+	user := User{
+		AccountNumber: d.generateUuid(),
+		Name:          name,
+	}
+	d.Users[user.AccountNumber] = user
+	return &user
 }
 
 func (d *Database) CreateAccessToken(accountNumber string) *AccessToken {
-	accessToken := AccessToken{AccountNumber: accountNumber, Token: d.generateUuid()}
+	accessToken := AccessToken{
+		AccountNumber: accountNumber,
+		Token:         d.generateUuid(),
+	}
 	d.AccessTokens[accessToken.Token] = accessToken
 	return &accessToken
 }
@@ -80,15 +86,16 @@ func (d *Database) GetAccessToken(token string) (*AccessToken, error) {
 }
 
 func (d *Database) CreateTodoList() *TodoList {
-	todoList := TodoList{Id: d.generateUuid()}
+	todoList := TodoList{
+		Id: d.generateUuid(),
+	}
 	d.TodoLists[todoList.Id] = todoList
 	return &todoList
 }
 
-func (d *Database) CreateTodo(listId string, description string, user string) models.TodoDatabaseItem {
-	itemId := d.generateUuid()
+func (d *Database) CreateTodo(listId string, description string, user string) *models.TodoDatabaseItem {
 	item := models.TodoDatabaseItem{
-		Id:          itemId,
+		Id:          d.generateUuid(),
 		ListId:      listId,
 		Description: description,
 		Status:      "todo",
@@ -97,7 +104,7 @@ func (d *Database) CreateTodo(listId string, description string, user string) mo
 	}
 
 	d.TodoItems[item.Id] = item
-	return item
+	return &item
 }
 
 func (d *Database) UpdateTodo(todo *models.TodoDatabaseItem) error {
