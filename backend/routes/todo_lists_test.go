@@ -18,7 +18,7 @@ type createListTestCase struct {
 	body          string
 	responseCode  int
 	responseBody  string
-	databaseLists map[string]string
+	databaseLists map[string]db.TodoList
 }
 
 func TestTodoLists_Create(t *testing.T) {
@@ -34,7 +34,7 @@ func TestTodoLists_Create(t *testing.T) {
 			body:          `{"invalid":"body"}`,
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid body"}`,
-			databaseLists: make(map[string]string),
+			databaseLists: make(map[string]db.TodoList),
 		},
 		{
 			description:   "Access token does not exist",
@@ -42,7 +42,7 @@ func TestTodoLists_Create(t *testing.T) {
 			body:          `{}`,
 			responseCode:  http.StatusUnauthorized,
 			responseBody:  `{"error":"account not found"}`,
-			databaseLists: make(map[string]string),
+			databaseLists: make(map[string]db.TodoList),
 		},
 		{
 			description:   "Create new todo list",
@@ -50,7 +50,7 @@ func TestTodoLists_Create(t *testing.T) {
 			body:          `{}`,
 			responseCode:  http.StatusOK,
 			responseBody:  `{"todo_list_id":"static_uuid"}`,
-			databaseLists: map[string]string{"static_uuid": "static_uuid"},
+			databaseLists: map[string]db.TodoList{"static_uuid": {Id: "static_uuid"}},
 		},
 	}
 
@@ -141,8 +141,8 @@ func TestTodoLists_Get(t *testing.T) {
 			)
 			database.Users[existingAccount] = db.User{AccountNumber: existingAccount, Name: "test user"}
 			database.AccessTokens[validAccessToken] = existingAccount
-			database.TodoLists[todoListIdWithoutElements] = todoListIdWithoutElements
-			database.TodoLists[todoListIdWithElements] = todoListIdWithElements
+			database.TodoLists[todoListIdWithoutElements] = db.TodoList{Id: todoListIdWithoutElements}
+			database.TodoLists[todoListIdWithElements] = db.TodoList{Id: todoListIdWithElements}
 			database.TodoItems = map[string]models.TodoDatabaseItem{
 				"id1": {Id: "id1", ListId: todoListIdWithElements, Description: "first todo", Status: "todo", User: existingAccount, UpdatedAt: util.FakeTime(2024, 1, 1)},
 				"id2": {Id: "id2", ListId: todoListIdWithElements, Description: "second todo", Status: "ongoing", User: existingAccount, UpdatedAt: util.FakeTime(2023, 1, 1)},

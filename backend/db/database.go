@@ -12,10 +12,14 @@ type User struct {
 	Name          string
 }
 
+type TodoList struct {
+	Id string
+}
+
 type Database struct {
 	Users        map[string]User
 	AccessTokens map[string]string
-	TodoLists    map[string]string
+	TodoLists    map[string]TodoList
 	TodoItems    map[string]models.TodoDatabaseItem
 	currentTime  util.CurrentTime
 	generateUuid util.GenerateUuid
@@ -25,7 +29,7 @@ func InMemoryDatabase() Database {
 	return Database{
 		Users:        make(map[string]User),                    // accountNumber -> password
 		AccessTokens: make(map[string]string),                  // accessToken -> accountNumber
-		TodoLists:    make(map[string]string),                  // listId -> listId
+		TodoLists:    make(map[string]TodoList),                // listId -> listId
 		TodoItems:    make(map[string]models.TodoDatabaseItem), // todoId -> todo
 		currentTime:  util.GetCurrentTime,
 		generateUuid: util.GenerateRandomUuid,
@@ -36,7 +40,7 @@ func TestDatabase(generateTime util.CurrentTime, generateUuid util.GenerateUuid)
 	return Database{
 		Users:        make(map[string]User),                    // accountNumber -> password
 		AccessTokens: make(map[string]string),                  // accessToken -> accountNumber
-		TodoLists:    make(map[string]string),                  // listId -> listId
+		TodoLists:    make(map[string]TodoList),                // listId -> listId
 		TodoItems:    make(map[string]models.TodoDatabaseItem), // todoId -> todo
 		currentTime:  generateTime,
 		generateUuid: generateUuid,
@@ -72,7 +76,7 @@ func (d *Database) Authorize(accessToken string) (*string, error) {
 
 func (d *Database) CreateTodoList() string {
 	listId := d.generateUuid()
-	d.TodoLists[listId] = listId
+	d.TodoLists[listId] = TodoList{Id: listId}
 	return listId
 }
 
@@ -102,9 +106,9 @@ func (d *Database) GetTodos(listId string) (*[]models.TodoDatabaseItem, error) {
 		return nil, errors.New("todo list does not exist")
 	}
 
-	items := make([]models.TodoDatabaseItem, 0, len(todoList))
+	var items []models.TodoDatabaseItem
 	for _, item := range d.TodoItems {
-		if item.ListId == listId {
+		if item.ListId == todoList.Id {
 			items = append(items, item)
 		}
 	}
