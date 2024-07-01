@@ -71,9 +71,11 @@ func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
 		net.HaltBadRequest(w, err.Error())
 		return
 	}
-	t.database.UpdateTodo(item)
 
-	net.Success(w, models.ToTodoItem(item, t.database.Users[accessToken.AccountNumber].Name))
+	// No need to handle error, we already know the TODO exists
+	updatedItem, _ := t.database.UpdateTodo(item)
+
+	net.Success(w, models.ToTodoItem(updatedItem, t.database.Users[accessToken.AccountNumber].Name))
 }
 
 type todoCreateRequest struct {

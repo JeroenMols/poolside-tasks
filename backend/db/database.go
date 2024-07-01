@@ -92,15 +92,14 @@ func (d *Database) CreateTodo(listId string, description string, user string) *T
 	return &item
 }
 
-// TODO: should also return todo here
-func (d *Database) UpdateTodo(todo *TodoItem) error {
+func (d *Database) UpdateTodo(todo *TodoItem) (*TodoItem, error) {
 	_, exists := d.TodoItems[todo.Id]
 	if !exists {
-		return errors.New("todo does not exist")
+		return nil, errors.New("todo does not exist")
 	}
 	todo.UpdatedAt = d.currentTime()
 	d.TodoItems[todo.Id] = *todo
-	return nil
+	return todo, nil
 }
 
 func (d *Database) GetTodo(todoId string) (*TodoItem, error) {
