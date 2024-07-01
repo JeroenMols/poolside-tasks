@@ -1,41 +1,26 @@
 package db
 
 import (
-	"backend/models"
 	"backend/util"
 	"errors"
 	"regexp"
 )
 
-type User struct {
-	AccountNumber string
-	Name          string
-}
-
-type TodoList struct {
-	Id string
-}
-
-type AccessToken struct {
-	AccountNumber string
-	Token         string
-}
-
 type Database struct {
 	Users        map[string]User
 	AccessTokens map[string]AccessToken
 	TodoLists    map[string]TodoList
-	TodoItems    map[string]models.TodoDatabaseItem
+	TodoItems    map[string]TodoDatabaseItem
 	currentTime  util.CurrentTime
 	generateUuid util.GenerateUuid
 }
 
 func InMemoryDatabase() Database {
 	return Database{
-		Users:        make(map[string]User),                    // accountNumber -> password
-		AccessTokens: make(map[string]AccessToken),             // accessToken -> accountNumber
-		TodoLists:    make(map[string]TodoList),                // listId -> listId
-		TodoItems:    make(map[string]models.TodoDatabaseItem), // todoId -> todo
+		Users:        make(map[string]User),
+		AccessTokens: make(map[string]AccessToken),
+		TodoLists:    make(map[string]TodoList),
+		TodoItems:    make(map[string]TodoDatabaseItem),
 		currentTime:  util.GetCurrentTime,
 		generateUuid: util.GenerateRandomUuid,
 	}
@@ -43,10 +28,10 @@ func InMemoryDatabase() Database {
 
 func TestDatabase(generateTime util.CurrentTime, generateUuid util.GenerateUuid) Database {
 	return Database{
-		Users:        make(map[string]User),                    // accountNumber -> password
-		AccessTokens: make(map[string]AccessToken),             // accessToken -> accountNumber
-		TodoLists:    make(map[string]TodoList),                // listId -> listId
-		TodoItems:    make(map[string]models.TodoDatabaseItem), // todoId -> todo
+		Users:        make(map[string]User),
+		AccessTokens: make(map[string]AccessToken),
+		TodoLists:    make(map[string]TodoList),
+		TodoItems:    make(map[string]TodoDatabaseItem),
 		currentTime:  generateTime,
 		generateUuid: generateUuid,
 	}
@@ -93,8 +78,8 @@ func (d *Database) CreateTodoList() *TodoList {
 	return &todoList
 }
 
-func (d *Database) CreateTodo(listId string, description string, user string) *models.TodoDatabaseItem {
-	item := models.TodoDatabaseItem{
+func (d *Database) CreateTodo(listId string, description string, user string) *TodoDatabaseItem {
+	item := TodoDatabaseItem{
 		Id:          d.generateUuid(),
 		ListId:      listId,
 		Description: description,
@@ -107,7 +92,8 @@ func (d *Database) CreateTodo(listId string, description string, user string) *m
 	return &item
 }
 
-func (d *Database) UpdateTodo(todo *models.TodoDatabaseItem) error {
+// TODO: should also return todo here
+func (d *Database) UpdateTodo(todo *TodoDatabaseItem) error {
 	_, exists := d.TodoItems[todo.Id]
 	if !exists {
 		return errors.New("todo does not exist")
@@ -117,7 +103,7 @@ func (d *Database) UpdateTodo(todo *models.TodoDatabaseItem) error {
 	return nil
 }
 
-func (d *Database) GetTodo(todoId string) (*models.TodoDatabaseItem, error) {
+func (d *Database) GetTodo(todoId string) (*TodoDatabaseItem, error) {
 	if !regexp.MustCompile(todoIdRegex).MatchString(todoId) {
 		return nil, errors.New("invalid todo")
 	}
@@ -129,7 +115,7 @@ func (d *Database) GetTodo(todoId string) (*models.TodoDatabaseItem, error) {
 	return &item, nil
 }
 
-func (d *Database) GetTodos(listId string) (*[]models.TodoDatabaseItem, error) {
+func (d *Database) GetTodos(listId string) (*[]TodoDatabaseItem, error) {
 	if !regexp.MustCompile(listIdRegex).MatchString(listId) {
 		return nil, errors.New("invalid todo list")
 	}
@@ -139,7 +125,7 @@ func (d *Database) GetTodos(listId string) (*[]models.TodoDatabaseItem, error) {
 		return nil, errors.New("todo list does not exist")
 	}
 
-	var items []models.TodoDatabaseItem
+	var items []TodoDatabaseItem
 	for _, item := range d.TodoItems {
 		if item.ListId == todoList.Id {
 			items = append(items, item)

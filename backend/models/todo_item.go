@@ -1,19 +1,9 @@
 package models
 
 import (
-	"errors"
-	"fmt"
+	"backend/db"
 	"time"
 )
-
-type TodoDatabaseItem struct {
-	Id          string
-	ListId      string
-	UpdatedAt   time.Time
-	Description string
-	Status      string
-	User        string
-}
 
 type TodoItem struct {
 	Id          string `json:"id"`
@@ -23,29 +13,12 @@ type TodoItem struct {
 	UpdatedAt   string `json:"updated_at"`
 }
 
-func (t *TodoDatabaseItem) ChangeStatus(newStatus string) error {
-	if t.Status == "todo" || t.Status == "done" {
-		if newStatus == "ongoing" {
-			t.Status = newStatus
-			return nil
-		}
-		return errors.New(fmt.Sprintf("invalid status transition from %s to %s", t.Status, newStatus))
-	} else if t.Status == "ongoing" {
-		if newStatus == "done" || newStatus == "todo" {
-			t.Status = newStatus
-			return nil
-		}
-		return errors.New(fmt.Sprintf("invalid status transition from %s to %s", t.Status, newStatus))
-	}
-	return errors.New(fmt.Sprintf("invalid status transition from %s to %s", t.Status, newStatus))
-}
-
-func (t *TodoDatabaseItem) ToTodoItem(user string) TodoItem {
+func ToTodoItem(todo *db.TodoDatabaseItem, user string) TodoItem {
 	return TodoItem{
-		Id:          t.Id,
+		Id:          todo.Id,
 		CreatedBy:   user,
-		Description: t.Description,
-		Status:      t.Status,
-		UpdatedAt:   t.UpdatedAt.Format(time.RFC3339),
+		Description: todo.Description,
+		Status:      todo.Status,
+		UpdatedAt:   todo.UpdatedAt.Format(time.RFC3339),
 	}
 }
