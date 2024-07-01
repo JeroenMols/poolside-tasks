@@ -9,7 +9,11 @@ import (
 )
 
 type Users struct {
-	Database db.Database
+	database db.Database
+}
+
+func CreateUsers(database db.Database) Users {
+	return Users{database: database}
 }
 
 func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
@@ -27,7 +31,7 @@ func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Printf("User name: %s\n", user.Name)
-	accountNumber := u.Database.RegisterUser(user.Name)
+	accountNumber := u.database.RegisterUser(user.Name)
 	response := registerResponse{
 		AccountNumber: accountNumber,
 	}
@@ -49,14 +53,14 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if u.Database.Users[user.AccountNumber] == "" {
+	if u.database.Users[user.AccountNumber] == "" {
 		net.HaltBadRequest(w, "account not found")
 		return
 	}
 	// TODO: return existing token if exists
 
 	fmt.Printf("Account number: %s\n", user.AccountNumber)
-	accessToken := u.Database.Login(user.AccountNumber)
+	accessToken := u.database.Login(user.AccountNumber)
 	response := loginResponse{
 		AccessToken: accessToken,
 	}

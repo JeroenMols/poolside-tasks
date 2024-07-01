@@ -10,7 +10,11 @@ import (
 )
 
 type Todos struct {
-	Database db.Database
+	database db.Database
+}
+
+func CreateTodos(database db.Database) Todos {
+	return Todos{database: database}
 }
 
 func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +24,7 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accountNumber, err := t.Database.Authorize(r.Header.Get("Authorization"))
+	accountNumber, err := t.database.Authorize(r.Header.Get("Authorization"))
 	if err != nil {
 		net.HaltUnauthorized(w, err.Error())
 		return
@@ -31,17 +35,17 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = t.Database.GetTodos(body.ListId)
+	_, err = t.database.GetTodos(body.ListId)
 	if err != nil {
 		net.HaltBadRequest(w, err.Error())
 		return
 	}
 
-	item := t.Database.CreateTodo(body.ListId, body.Description, *accountNumber)
+	item := t.database.CreateTodo(body.ListId, body.Description, *accountNumber)
 
 	net.Success(w, models.TodoItem{
 		Id:          item.Id,
-		CreatedBy:   t.Database.Users[*accountNumber],
+		CreatedBy:   t.database.Users[*accountNumber],
 		Description: item.Description,
 		Status:      item.Status,
 		UpdatedAt:   item.UpdatedAt.Format(time.RFC3339),
@@ -57,13 +61,13 @@ func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
 
 	todo_id := r.PathValue("todo_id")
 
-	accountNumber, err := t.Database.Authorize(r.Header.Get("Authorization"))
+	accountNumber, err := t.database.Authorize(r.Header.Get("Authorization"))
 	if err != nil {
 		net.HaltUnauthorized(w, err.Error())
 		return
 	}
 
-	item, err := t.Database.GetTodo(todo_id)
+	item, err := t.database.GetTodo(todo_id)
 	if err != nil {
 		net.HaltBadRequest(w, err.Error())
 		return
@@ -74,9 +78,9 @@ func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
 		net.HaltBadRequest(w, err.Error())
 		return
 	}
-	t.Database.UpdateTodo(item)
+	t.database.UpdateTodo(item)
 
-	net.Success(w, item.ToTodoItem(t.Database.Users[*accountNumber]))
+	net.Success(w, item.ToTodoItem(t.database.Users[*accountNumber]))
 }
 
 type todoCreateRequest struct {

@@ -66,9 +66,7 @@ func TestUsers_Register(t *testing.T) {
 				func() time.Time { return util.FakeTime(2024, 6, 30) },
 				func() string { return "static_uuid" },
 			)
-			users := Users{
-				Database: database,
-			}
+			users := CreateUsers(database)
 
 			request := httptest.NewRequest(http.MethodGet, "/users/register", strings.NewReader(tt.body))
 			writer := httptest.NewRecorder()
@@ -133,9 +131,7 @@ func TestUsers_Login(t *testing.T) {
 				func() string { return "static_uuid" },
 			)
 			database.Users[existingAccount] = "myname"
-			users := Users{
-				Database: database,
-			}
+			users := CreateUsers(database)
 
 			request := httptest.NewRequest(http.MethodGet, "/users/login", strings.NewReader(tt.body))
 			writer := httptest.NewRecorder()

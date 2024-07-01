@@ -62,9 +62,7 @@ func TestTodoLists_Create(t *testing.T) {
 			)
 			database.AccessTokens[validAccessToken] = existingAccount
 
-			todoList := TodoLists{
-				Database: database,
-			}
+			todoList := CreateTodoLists(database)
 
 			request := httptest.NewRequest(http.MethodPost, "/todolists", strings.NewReader(tt.body))
 			request.Header.Set("Authorization", tt.accessToken)
@@ -150,9 +148,7 @@ func TestTodoLists_Get(t *testing.T) {
 				"id2": {Id: "id2", ListId: todoListIdWithElements, Description: "second todo", Status: "ongoing", User: existingAccount, UpdatedAt: util.FakeTime(2023, 1, 1)},
 			}
 
-			todoList := TodoLists{
-				Database: database,
-			}
+			todoList := CreateTodoLists(database)
 
 			request := httptest.NewRequest(http.MethodGet, "/todolists", nil)
 			request.SetPathValue("list_id", tt.todoListId)

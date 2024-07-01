@@ -10,7 +10,11 @@ import (
 )
 
 type TodoLists struct {
-	Database db.Database
+	database db.Database
+}
+
+func CreateTodoLists(database db.Database) TodoLists {
+	return TodoLists{database: database}
 }
 
 func (t *TodoLists) Create(w http.ResponseWriter, r *http.Request) {
@@ -19,26 +23,26 @@ func (t *TodoLists) Create(w http.ResponseWriter, r *http.Request) {
 		net.HaltBadRequest(w, err.Error())
 		return
 	}
-	if _, err := t.Database.Authorize(r.Header.Get("Authorization")); err != nil {
+	if _, err := t.database.Authorize(r.Header.Get("Authorization")); err != nil {
 		net.HaltUnauthorized(w, err.Error())
 		return
 	}
 
-	listId := t.Database.CreateTodoList()
+	listId := t.database.CreateTodoList()
 	fmt.Printf("Creating new todo list %s\n", listId)
 
 	net.Success(w, listCreateResponse{TodoListId: listId})
 }
 
 func (t *TodoLists) Get(w http.ResponseWriter, r *http.Request) {
-	if _, err := t.Database.Authorize(r.Header.Get("Authorization")); err != nil {
+	if _, err := t.database.Authorize(r.Header.Get("Authorization")); err != nil {
 		net.HaltUnauthorized(w, err.Error())
 		return
 	}
 
 	listId := r.PathValue("list_id")
 
-	todos, err := t.Database.GetTodos(listId)
+	todos, err := t.database.GetTodos(listId)
 	if err != nil {
 		net.HaltBadRequest(w, err.Error())
 		return
@@ -48,7 +52,7 @@ func (t *TodoLists) Get(w http.ResponseWriter, r *http.Request) {
 	for _, todo := range *todos {
 		formattedTodos = append(formattedTodos, models.TodoItem{
 			Id:          todo.Id,
-			CreatedBy:   t.Database.Users[todo.User],
+			CreatedBy:   t.database.Users[todo.User],
 			Description: todo.Description,
 			Status:      todo.Status,
 			UpdatedAt:   todo.UpdatedAt.Format(time.RFC3339),

@@ -95,9 +95,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 			database.AccessTokens[validAccessToken] = existingAccount
 			database.TodoLists[existingTodoListId] = existingTodoListId
 
-			todos := Todos{
-				Database: database,
-			}
+			todos := CreateTodos(database)
 
 			request := httptest.NewRequest(http.MethodPost, "/todos", strings.NewReader(tt.body))
 			request.Header.Set("Authorization", tt.accessToken)
@@ -158,9 +156,7 @@ func TestTodo_CreateLogic(t *testing.T) {
 			database.AccessTokens[validAccessToken] = existingAccount
 			database.TodoLists[existingList] = existingList
 
-			todos := Todos{
-				Database: database,
-			}
+			todos := CreateTodos(database)
 
 			request := httptest.NewRequest(http.MethodPost, "/todos", strings.NewReader(tt.body))
 			request.Header.Add("Authorization", tt.accessToken)
@@ -242,9 +238,7 @@ func TestTodo_UpdateValidations(t *testing.T) {
 				existingTodoId: {Id: existingTodoId, ListId: existingList, Description: "first todo", Status: "todo", User: existingAccount, UpdatedAt: util.FakeTime(2024, 1, 1)},
 			}
 
-			todos := Todos{
-				Database: database,
-			}
+			todos := CreateTodos(database)
 
 			request := httptest.NewRequest(http.MethodPost, "/todos", strings.NewReader(tt.body))
 			request.SetPathValue("todo_id", tt.todoId)
@@ -317,9 +311,7 @@ func TestTodos_UpdateLogic(t *testing.T) {
 				existingTodoId: {Id: existingTodoId, ListId: existingList, Description: "first todo", Status: "todo", User: existingAccount, UpdatedAt: util.FakeTime(2000, 1, 1)},
 			}
 
-			todos := Todos{
-				Database: database,
-			}
+			todos := CreateTodos(database)
 
 			request := httptest.NewRequest(http.MethodPost, "/todos", strings.NewReader(tt.body))
 			request.SetPathValue("todo_id", tt.todoId)

@@ -12,9 +12,9 @@ func main() {
 	mux := http.NewServeMux()
 	database := db.InMemoryDatabase()
 
-	users := routes.Users{Database: database}
-	todoLists := routes.TodoLists{Database: database}
-	todos := routes.Todos{Database: database}
+	users := routes.CreateUsers(database)
+	todoLists := routes.CreateTodoLists(database)
+	todos := routes.CreateTodos(database)
 
 	mux.HandleFunc("POST /users/register", users.Register)
 	mux.HandleFunc("POST /users/login", users.Login)
