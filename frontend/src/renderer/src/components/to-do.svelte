@@ -25,7 +25,8 @@
       // TODO validate result here
       todos = registerResponse.todos
     } else {
-      alert(`Failed to create todo list - backend error (${response.status})`)
+      const error = await response.text()
+      errorMessage = `Failed to get todos (${error})`
     }
   }
 
@@ -45,6 +46,8 @@
       const error = await response.text()
       errorMessage = `Failed to create todo (${error})`
     }
+
+    await getTodosForList()
   }
 
   const updateTodo = async (todo: TodoItem, newStatus: TodoStatus) => {
