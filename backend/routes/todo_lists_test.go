@@ -60,7 +60,7 @@ func TestTodoLists_Create(t *testing.T) {
 				func() time.Time { return util.FakeTime(2021, 1, 1) },
 				func() string { return "static_uuid" },
 			)
-			database.AccessTokens[validAccessToken] = existingAccount
+			database.AccessTokens[validAccessToken] = db.AccessToken{AccountNumber: existingAccount, Token: validAccessToken}
 
 			todoList := CreateTodoLists(database)
 
@@ -140,7 +140,7 @@ func TestTodoLists_Get(t *testing.T) {
 				func() string { return "static_uuid" },
 			)
 			database.Users[existingAccount] = db.User{AccountNumber: existingAccount, Name: "test user"}
-			database.AccessTokens[validAccessToken] = existingAccount
+			database.AccessTokens[validAccessToken] = db.AccessToken{AccountNumber: existingAccount, Token: validAccessToken}
 			database.TodoLists[todoListIdWithoutElements] = db.TodoList{Id: todoListIdWithoutElements}
 			database.TodoLists[todoListIdWithElements] = db.TodoList{Id: todoListIdWithElements}
 			database.TodoItems = map[string]models.TodoDatabaseItem{

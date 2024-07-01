@@ -85,7 +85,7 @@ type loginTestCase struct {
 	body           string
 	responseCode   int
 	responseBody   string
-	databaseTokens map[string]string
+	databaseTokens map[string]db.AccessToken
 }
 
 func TestUsers_Login(t *testing.T) {
@@ -99,28 +99,28 @@ func TestUsers_Login(t *testing.T) {
 			body:           fmt.Sprintf(`{"account_number":"%s"}`, existingAccount),
 			responseCode:   http.StatusOK,
 			responseBody:   `{"access_token":"static_uuid"}`,
-			databaseTokens: map[string]string{"static_uuid": existingAccount},
+			databaseTokens: map[string]db.AccessToken{"static_uuid": {AccountNumber: existingAccount, Token: "static_uuid"}},
 		},
 		{
 			description:    "Invalid body",
 			body:           `{"invalid":"body"}`,
 			responseCode:   http.StatusBadRequest,
 			responseBody:   `{"error":"invalid body"}`,
-			databaseTokens: make(map[string]string),
+			databaseTokens: make(map[string]db.AccessToken),
 		},
 		{
 			description:    "Account number not a uuid",
 			body:           `{"account_number":"not_a_uuid"}`,
 			responseCode:   http.StatusBadRequest,
 			responseBody:   `{"error":"invalid account number"}`,
-			databaseTokens: make(map[string]string),
+			databaseTokens: make(map[string]db.AccessToken),
 		},
 		{
 			description:    "Account does not exist",
 			body:           fmt.Sprintf(`{"account_number":"%s"}`, nonExistingAccount),
 			responseCode:   http.StatusBadRequest,
 			responseBody:   `{"error":"account not found"}`,
-			databaseTokens: make(map[string]string),
+			databaseTokens: make(map[string]db.AccessToken),
 		},
 	}
 

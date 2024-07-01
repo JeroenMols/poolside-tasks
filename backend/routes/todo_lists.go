@@ -23,7 +23,7 @@ func (t *TodoLists) Create(w http.ResponseWriter, r *http.Request) {
 		net.HaltBadRequest(w, err.Error())
 		return
 	}
-	if _, err := t.database.Authorize(r.Header.Get("Authorization")); err != nil {
+	if _, err := t.database.GetAccessToken(r.Header.Get("Authorization")); err != nil {
 		net.HaltUnauthorized(w, err.Error())
 		return
 	}
@@ -35,7 +35,7 @@ func (t *TodoLists) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (t *TodoLists) Get(w http.ResponseWriter, r *http.Request) {
-	if _, err := t.database.Authorize(r.Header.Get("Authorization")); err != nil {
+	if _, err := t.database.GetAccessToken(r.Header.Get("Authorization")); err != nil {
 		net.HaltUnauthorized(w, err.Error())
 		return
 	}

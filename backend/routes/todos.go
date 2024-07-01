@@ -22,7 +22,7 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accountNumber, err := t.database.Authorize(r.Header.Get("Authorization"))
+	accessToken, err := t.database.GetAccessToken(r.Header.Get("Authorization"))
 	if err != nil {
 		net.HaltUnauthorized(w, err.Error())
 		return
@@ -39,9 +39,9 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	item := t.database.CreateTodo(body.ListId, body.Description, *accountNumber)
+	item := t.database.CreateTodo(body.ListId, body.Description, accessToken.AccountNumber)
 
-	net.Success(w, item.ToTodoItem(t.database.Users[*accountNumber].Name))
+	net.Success(w, item.ToTodoItem(t.database.Users[accessToken.AccountNumber].Name))
 }
 
 func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
@@ -53,7 +53,7 @@ func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
 
 	todo_id := r.PathValue("todo_id")
 
-	accountNumber, err := t.database.Authorize(r.Header.Get("Authorization"))
+	accessToken, err := t.database.GetAccessToken(r.Header.Get("Authorization"))
 	if err != nil {
 		net.HaltUnauthorized(w, err.Error())
 		return
@@ -72,7 +72,7 @@ func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
 	}
 	t.database.UpdateTodo(item)
 
-	net.Success(w, item.ToTodoItem(t.database.Users[*accountNumber].Name))
+	net.Success(w, item.ToTodoItem(t.database.Users[accessToken.AccountNumber].Name))
 }
 
 type todoCreateRequest struct {

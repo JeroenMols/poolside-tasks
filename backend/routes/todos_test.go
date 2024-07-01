@@ -92,7 +92,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 				func() time.Time { return util.FakeTime(2024, 6, 30) },
 				func() string { return "static_uuid" },
 			)
-			database.AccessTokens[validAccessToken] = existingAccount
+			database.AccessTokens[validAccessToken] = db.AccessToken{AccountNumber: existingAccount, Token: validAccessToken}
 			database.TodoLists[existingTodoListId] = db.TodoList{Id: existingTodoListId}
 
 			todos := CreateTodos(database)
@@ -153,7 +153,7 @@ func TestTodo_CreateLogic(t *testing.T) {
 				func() time.Time { return util.FakeTime(2024, 6, 30) },
 				func() string { return "static_uuid" },
 			)
-			database.AccessTokens[validAccessToken] = existingAccount
+			database.AccessTokens[validAccessToken] = db.AccessToken{AccountNumber: existingAccount, Token: validAccessToken}
 			database.TodoLists[existingList] = db.TodoList{Id: existingList}
 
 			todos := CreateTodos(database)
@@ -232,7 +232,7 @@ func TestTodo_UpdateValidations(t *testing.T) {
 				func() time.Time { return util.FakeTime(2024, 6, 30) },
 				func() string { return "static_uuid" },
 			)
-			database.AccessTokens[validAccessToken] = existingAccount
+			database.AccessTokens[validAccessToken] = db.AccessToken{AccountNumber: existingAccount, Token: validAccessToken}
 			database.TodoLists[existingList] = db.TodoList{Id: existingList}
 			database.TodoItems = map[string]models.TodoDatabaseItem{
 				existingTodoId: {Id: existingTodoId, ListId: existingList, Description: "first todo", Status: "todo", User: existingAccount, UpdatedAt: util.FakeTime(2024, 1, 1)},
@@ -305,7 +305,7 @@ func TestTodos_UpdateLogic(t *testing.T) {
 				func() time.Time { return util.FakeTime(2024, 6, 30) },
 				func() string { return "static_uuid" },
 			)
-			database.AccessTokens[validAccessToken] = existingAccount
+			database.AccessTokens[validAccessToken] = db.AccessToken{AccountNumber: existingAccount, Token: validAccessToken}
 			database.TodoLists[existingList] = db.TodoList{Id: existingList}
 			database.TodoItems = map[string]models.TodoDatabaseItem{
 				existingTodoId: {Id: existingTodoId, ListId: existingList, Description: "first todo", Status: "todo", User: existingAccount, UpdatedAt: util.FakeTime(2000, 1, 1)},

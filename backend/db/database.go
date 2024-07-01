@@ -16,9 +16,14 @@ type TodoList struct {
 	Id string
 }
 
+type AccessToken struct {
+	AccountNumber string
+	Token         string
+}
+
 type Database struct {
 	Users        map[string]User
-	AccessTokens map[string]string
+	AccessTokens map[string]AccessToken
 	TodoLists    map[string]TodoList
 	TodoItems    map[string]models.TodoDatabaseItem
 	currentTime  util.CurrentTime
@@ -28,7 +33,7 @@ type Database struct {
 func InMemoryDatabase() Database {
 	return Database{
 		Users:        make(map[string]User),                    // accountNumber -> password
-		AccessTokens: make(map[string]string),                  // accessToken -> accountNumber
+		AccessTokens: make(map[string]AccessToken),             // accessToken -> accountNumber
 		TodoLists:    make(map[string]TodoList),                // listId -> listId
 		TodoItems:    make(map[string]models.TodoDatabaseItem), // todoId -> todo
 		currentTime:  util.GetCurrentTime,
@@ -39,7 +44,7 @@ func InMemoryDatabase() Database {
 func TestDatabase(generateTime util.CurrentTime, generateUuid util.GenerateUuid) Database {
 	return Database{
 		Users:        make(map[string]User),                    // accountNumber -> password
-		AccessTokens: make(map[string]string),                  // accessToken -> accountNumber
+		AccessTokens: make(map[string]AccessToken),             // accessToken -> accountNumber
 		TodoLists:    make(map[string]TodoList),                // listId -> listId
 		TodoItems:    make(map[string]models.TodoDatabaseItem), // todoId -> todo
 		currentTime:  generateTime,
@@ -59,19 +64,19 @@ func (d *Database) RegisterUser(name string) string {
 
 func (d *Database) Login(accountNumber string) string {
 	accessToken := d.generateUuid()
-	d.AccessTokens[accessToken] = accountNumber
+	d.AccessTokens[accessToken] = AccessToken{AccountNumber: accountNumber, Token: accessToken}
 	return accessToken
 }
 
-func (d *Database) Authorize(accessToken string) (*string, error) {
-	if !regexp.MustCompile(accessTokenRegex).MatchString(accessToken) {
+func (d *Database) GetAccessToken(token string) (*AccessToken, error) {
+	if !regexp.MustCompile(accessTokenRegex).MatchString(token) {
 		return nil, errors.New("invalid access token")
 	}
-	accountNumber := d.AccessTokens[accessToken]
-	if accountNumber == "" {
+	accessToken, exists := d.AccessTokens[token]
+	if !exists {
 		return nil, errors.New("account not found")
 	}
-	return &accountNumber, nil
+	return &accessToken, nil
 }
 
 func (d *Database) CreateTodoList() string {
