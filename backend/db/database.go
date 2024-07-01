@@ -37,9 +37,9 @@ func TestDatabase(generateTime util.CurrentTime, generateUuid util.GenerateUuid)
 	}
 }
 
-const accessTokenRegex = `^tkn_[23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxy=]{22}$`
-const listIdRegex = `^lst_[23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxy=]{22}$`
-const todoIdRegex = `^tdo_[23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxy=]{22}$`
+const accessTokenRegex = `^tkn_[23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{22}$`
+const listIdRegex = `^lst_[23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{22}$`
+const todoIdRegex = `^tdo_[23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{22}$`
 
 func (d *Database) CreateUser(name string) *User {
 	user := User{
