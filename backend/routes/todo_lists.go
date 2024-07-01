@@ -26,9 +26,8 @@ func (t *TodoLists) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	listId := t.GenerateUuid()
+	listId := t.Database.CreateTodoList(t.GenerateUuid())
 	fmt.Printf("Creating new todo list %s\n", listId)
-	t.Database.TodoLists[listId] = make(map[string]models.TodoDatabaseItem)
 
 	net.Success(w, listCreateResponse{TodoListId: listId})
 }

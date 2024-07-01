@@ -19,7 +19,7 @@ type createTodoTestCase struct {
 	body          string
 	responseCode  int
 	responseBody  string
-	databaseLists map[string]map[string]models.TodoDatabaseItem
+	databaseTodos map[string]models.TodoDatabaseItem
 }
 
 func TestTodo_CreateValidations(t *testing.T) {
@@ -37,7 +37,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 			body:          `{"invalid":"body"}`,
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid body"}`,
-			databaseLists: make(map[string]map[string]models.TodoDatabaseItem),
+			databaseTodos: make(map[string]models.TodoDatabaseItem),
 		},
 		{
 			description: "Access token does not exist",
@@ -46,7 +46,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 				"fake_description", existingTodoListId),
 			responseCode:  http.StatusUnauthorized,
 			responseBody:  `{"error":"account not found"}`,
-			databaseLists: make(map[string]map[string]models.TodoDatabaseItem),
+			databaseTodos: make(map[string]models.TodoDatabaseItem),
 		},
 		{
 			description: "Description too long",
@@ -55,7 +55,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 				strings.Repeat("a", 257), existingTodoListId),
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid description"}`,
-			databaseLists: make(map[string]map[string]models.TodoDatabaseItem),
+			databaseTodos: make(map[string]models.TodoDatabaseItem),
 		},
 		{
 			description: "Description invalid characters",
@@ -64,7 +64,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 				"/", existingTodoListId),
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid description"}`,
-			databaseLists: make(map[string]map[string]models.TodoDatabaseItem),
+			databaseTodos: make(map[string]models.TodoDatabaseItem),
 		},
 		{
 			description: "Todo list Id invalid",
@@ -73,7 +73,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 				"description", "not-a-uuid"),
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"invalid todo list"}`,
-			databaseLists: make(map[string]map[string]models.TodoDatabaseItem),
+			databaseTodos: make(map[string]models.TodoDatabaseItem),
 		},
 		{
 			description: "Todo list does not exist",
@@ -82,7 +82,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 				"description", nonExistingTodoListId),
 			responseCode:  http.StatusBadRequest,
 			responseBody:  `{"error":"todo list does not exist"}`,
-			databaseLists: make(map[string]map[string]models.TodoDatabaseItem),
+			databaseTodos: make(map[string]models.TodoDatabaseItem),
 		},
 	}
 
@@ -90,7 +90,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			database := db.InMemoryDatabase()
 			database.AccessTokens[validAccessToken] = existingAccount
-			database.TodoLists[existingTodoListId] = make(map[string]models.TodoDatabaseItem)
+			database.TodoLists[existingTodoListId] = existingTodoListId
 
 			todos := Todos{
 				Database:     database,
@@ -106,6 +106,7 @@ func TestTodo_CreateValidations(t *testing.T) {
 
 			assert.Equal(t, tt.responseCode, writer.Code)
 			assert.Equal(t, tt.responseBody, writer.Body.String())
+			assert.Equal(t, tt.databaseTodos, database.TodoItems)
 		})
 	}
 }
@@ -125,15 +126,15 @@ func TestTodo_CreateLogic(t *testing.T) {
 				"test todo", existingList),
 			responseCode: http.StatusOK,
 			responseBody: `{"id":"static_uuid","created_by":"","description":"test todo","status":"todo","updated_at":"2024-06-30T00:00:00+00:00"}`,
-			databaseLists: map[string]map[string]models.TodoDatabaseItem{
-				existingList: {
-					"static_uuid": models.TodoDatabaseItem{
-						Id:          "static_uuid",
-						Description: "test todo",
-						Status:      "todo",
-						User:        existingAccount,
-						UpdatedAt:   util.FakeTime(2024, 6, 30),
-					}},
+			databaseTodos: map[string]models.TodoDatabaseItem{
+				"static_uuid": {
+					Id:          "static_uuid",
+					ListId:      existingList,
+					Description: "test todo",
+					Status:      "todo",
+					User:        existingAccount,
+					UpdatedAt:   util.FakeTime(2024, 6, 30),
+				},
 			},
 		},
 		{
@@ -141,11 +142,9 @@ func TestTodo_CreateLogic(t *testing.T) {
 			accessToken: validAccessToken,
 			body: fmt.Sprintf(`{"description":"%s", "todo_list_id":"%s"}`,
 				"test todo", nonExistingList),
-			responseCode: http.StatusBadRequest,
-			responseBody: `{"error":"todo list does not exist"}`,
-			databaseLists: map[string]map[string]models.TodoDatabaseItem{
-				existingList: {},
-			},
+			responseCode:  http.StatusBadRequest,
+			responseBody:  `{"error":"todo list does not exist"}`,
+			databaseTodos: make(map[string]models.TodoDatabaseItem),
 		},
 	}
 
@@ -153,7 +152,7 @@ func TestTodo_CreateLogic(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			database := db.InMemoryDatabase()
 			database.AccessTokens[validAccessToken] = existingAccount
-			database.TodoLists[existingList] = make(map[string]models.TodoDatabaseItem)
+			database.TodoLists[existingList] = existingList
 
 			todos := Todos{
 				Database:     database,
@@ -169,7 +168,7 @@ func TestTodo_CreateLogic(t *testing.T) {
 
 			assert.Equal(t, tt.responseCode, writer.Code)
 			assert.Equal(t, tt.responseBody, writer.Body.String())
-			assert.Equal(t, tt.databaseLists, database.TodoLists)
+			assert.Equal(t, tt.databaseTodos, database.TodoItems)
 		})
 	}
 }
@@ -233,8 +232,9 @@ func TestTodo_UpdateValidations(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			database := db.InMemoryDatabase()
 			database.AccessTokens[validAccessToken] = existingAccount
-			database.TodoLists[existingList] = map[string]models.TodoDatabaseItem{
-				existingTodoId: {Id: existingTodoId, Description: "first todo", Status: "todo", User: existingAccount, UpdatedAt: util.FakeTime(2024, 1, 1)},
+			database.TodoLists[existingList] = existingList
+			database.TodoItems = map[string]models.TodoDatabaseItem{
+				existingTodoId: {Id: existingTodoId, ListId: existingList, Description: "first todo", Status: "todo", User: existingAccount, UpdatedAt: util.FakeTime(2024, 1, 1)},
 			}
 
 			todos := Todos{
@@ -306,8 +306,9 @@ func TestTodos_UpdateLogic(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			database := db.InMemoryDatabase()
 			database.AccessTokens[validAccessToken] = existingAccount
-			database.TodoLists[existingList] = map[string]models.TodoDatabaseItem{
-				existingTodoId: {Id: existingTodoId, Description: "first todo", Status: "todo", User: existingAccount, UpdatedAt: util.FakeTime(2000, 1, 1)},
+			database.TodoLists[existingList] = existingList
+			database.TodoItems = map[string]models.TodoDatabaseItem{
+				existingTodoId: {Id: existingTodoId, ListId: existingList, Description: "first todo", Status: "todo", User: existingAccount, UpdatedAt: util.FakeTime(2000, 1, 1)},
 			}
 
 			todos := Todos{

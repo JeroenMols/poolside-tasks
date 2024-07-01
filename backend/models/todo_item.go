@@ -8,6 +8,7 @@ import (
 
 type TodoDatabaseItem struct {
 	Id          string
+	ListId      string
 	UpdatedAt   time.Time
 	Description string
 	Status      string

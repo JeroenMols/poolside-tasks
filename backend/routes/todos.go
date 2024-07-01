@@ -5,7 +5,6 @@ import (
 	"backend/models"
 	"backend/net"
 	"backend/util"
-	"fmt"
 	"net/http"
 	"regexp"
 	"time"
@@ -41,15 +40,7 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	item := models.TodoDatabaseItem{
-		Id:          t.GenerateUuid(),
-		Description: body.Description,
-		Status:      "todo",
-		User:        *accountNumber,
-		UpdatedAt:   t.CurrentTime(),
-	}
-	fmt.Printf("Creating new todo %s\n", item.Description)
-	t.Database.TodoLists[body.ListId][item.Id] = item
+	item := t.Database.CreateTodo(t.GenerateUuid(), body.ListId, body.Description, *accountNumber, t.CurrentTime())
 
 	net.Success(w, models.TodoItem{
 		Id:          item.Id,
