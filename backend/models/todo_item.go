@@ -13,7 +13,7 @@ type TodoItem struct {
 	UpdatedAt   string `json:"updated_at"`
 }
 
-func ToTodoItem(todo *db.TodoDatabaseItem, user string) TodoItem {
+func ToTodoItem(todo *db.TodoItem, user string) TodoItem {
 	return TodoItem{
 		Id:          todo.Id,
 		CreatedBy:   user,

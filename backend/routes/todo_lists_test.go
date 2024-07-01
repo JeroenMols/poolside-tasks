@@ -142,7 +142,7 @@ func TestTodoLists_Get(t *testing.T) {
 			database.AccessTokens[validAccessToken] = db.AccessToken{AccountNumber: existingAccount, Token: validAccessToken}
 			database.TodoLists[todoListIdWithoutElements] = db.TodoList{Id: todoListIdWithoutElements}
 			database.TodoLists[todoListIdWithElements] = db.TodoList{Id: todoListIdWithElements}
-			database.TodoItems = map[string]db.TodoDatabaseItem{
+			database.TodoItems = map[string]db.TodoItem{
 				"id1": {Id: "id1", ListId: todoListIdWithElements, Description: "first todo", Status: "todo", User: existingAccount, UpdatedAt: util.FakeTime(2024, 1, 1)},
 				"id2": {Id: "id2", ListId: todoListIdWithElements, Description: "second todo", Status: "ongoing", User: existingAccount, UpdatedAt: util.FakeTime(2023, 1, 1)},
 			}

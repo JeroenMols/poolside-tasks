@@ -10,7 +10,7 @@ type Database struct {
 	Users        map[string]User
 	AccessTokens map[string]AccessToken
 	TodoLists    map[string]TodoList
-	TodoItems    map[string]TodoDatabaseItem
+	TodoItems    map[string]TodoItem
 	currentTime  util.CurrentTime
 	generateUuid util.GenerateUuid
 }
@@ -20,7 +20,7 @@ func InMemoryDatabase() Database {
 		Users:        make(map[string]User),
 		AccessTokens: make(map[string]AccessToken),
 		TodoLists:    make(map[string]TodoList),
-		TodoItems:    make(map[string]TodoDatabaseItem),
+		TodoItems:    make(map[string]TodoItem),
 		currentTime:  util.GetCurrentTime,
 		generateUuid: util.GenerateRandomUuid,
 	}
@@ -31,7 +31,7 @@ func TestDatabase(generateTime util.CurrentTime, generateUuid util.GenerateUuid)
 		Users:        make(map[string]User),
 		AccessTokens: make(map[string]AccessToken),
 		TodoLists:    make(map[string]TodoList),
-		TodoItems:    make(map[string]TodoDatabaseItem),
+		TodoItems:    make(map[string]TodoItem),
 		currentTime:  generateTime,
 		generateUuid: generateUuid,
 	}
@@ -78,8 +78,8 @@ func (d *Database) CreateTodoList() *TodoList {
 	return &todoList
 }
 
-func (d *Database) CreateTodo(listId string, description string, user string) *TodoDatabaseItem {
-	item := TodoDatabaseItem{
+func (d *Database) CreateTodo(listId string, description string, user string) *TodoItem {
+	item := TodoItem{
 		Id:          d.generateUuid(),
 		ListId:      listId,
 		Description: description,
@@ -93,7 +93,7 @@ func (d *Database) CreateTodo(listId string, description string, user string) *T
 }
 
 // TODO: should also return todo here
-func (d *Database) UpdateTodo(todo *TodoDatabaseItem) error {
+func (d *Database) UpdateTodo(todo *TodoItem) error {
 	_, exists := d.TodoItems[todo.Id]
 	if !exists {
 		return errors.New("todo does not exist")
@@ -103,7 +103,7 @@ func (d *Database) UpdateTodo(todo *TodoDatabaseItem) error {
 	return nil
 }
 
-func (d *Database) GetTodo(todoId string) (*TodoDatabaseItem, error) {
+func (d *Database) GetTodo(todoId string) (*TodoItem, error) {
 	if !regexp.MustCompile(todoIdRegex).MatchString(todoId) {
 		return nil, errors.New("invalid todo")
 	}
@@ -115,7 +115,7 @@ func (d *Database) GetTodo(todoId string) (*TodoDatabaseItem, error) {
 	return &item, nil
 }
 
-func (d *Database) GetTodos(listId string) (*[]TodoDatabaseItem, error) {
+func (d *Database) GetTodos(listId string) (*[]TodoItem, error) {
 	if !regexp.MustCompile(listIdRegex).MatchString(listId) {
 		return nil, errors.New("invalid todo list")
 	}
@@ -125,7 +125,7 @@ func (d *Database) GetTodos(listId string) (*[]TodoDatabaseItem, error) {
 		return nil, errors.New("todo list does not exist")
 	}
 
-	var items []TodoDatabaseItem
+	var items []TodoItem
 	for _, item := range d.TodoItems {
 		if item.ListId == todoList.Id {
 			items = append(items, item)

@@ -54,7 +54,7 @@ func TestTodoItem_ChangeStatus(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("from %s to %s", tt.oldStatus, tt.newStatus), func(t *testing.T) {
-			item := TodoDatabaseItem{
+			item := TodoItem{
 				Id:          "fake_id",
 				UpdatedAt:   util.FakeTime(2021, 1, 1),
 				Description: "fake description",

@@ -20,7 +20,7 @@ type TodoList struct {
 	Id string
 }
 
-type TodoDatabaseItem struct {
+type TodoItem struct {
 	Id          string
 	ListId      string
 	UpdatedAt   time.Time
@@ -29,7 +29,7 @@ type TodoDatabaseItem struct {
 	User        string
 }
 
-func (t *TodoDatabaseItem) ChangeStatus(newStatus string) error {
+func (t *TodoItem) ChangeStatus(newStatus string) error {
 	if t.Status == "todo" || t.Status == "done" {
 		if newStatus == "ongoing" {
 			t.Status = newStatus
