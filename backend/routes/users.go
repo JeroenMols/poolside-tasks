@@ -61,9 +61,9 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 	// TODO: return existing token if exists
 
 	fmt.Printf("Account number: %s\n", user.AccountNumber)
-	accessToken := u.database.Login(user.AccountNumber)
+	accessToken := u.database.CreateAccessToken(user.AccountNumber)
 	response := loginResponse{
-		AccessToken: accessToken,
+		AccessToken: accessToken.Token,
 	}
 
 	net.Success(w, response)

@@ -28,10 +28,10 @@ func (t *TodoLists) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	listId := t.database.CreateTodoList()
-	fmt.Printf("Creating new todo list %s\n", listId)
+	todoList := t.database.CreateTodoList()
+	fmt.Printf("Creating new todo list %s\n", todoList.Id)
 
-	net.Success(w, listCreateResponse{TodoListId: listId})
+	net.Success(w, listCreateResponse{TodoListId: todoList.Id})
 }
 
 func (t *TodoLists) Get(w http.ResponseWriter, r *http.Request) {

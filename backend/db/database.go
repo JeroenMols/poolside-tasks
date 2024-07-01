@@ -62,10 +62,10 @@ func (d *Database) RegisterUser(name string) string {
 	return accountNumber
 }
 
-func (d *Database) Login(accountNumber string) string {
-	accessToken := d.generateUuid()
-	d.AccessTokens[accessToken] = AccessToken{AccountNumber: accountNumber, Token: accessToken}
-	return accessToken
+func (d *Database) CreateAccessToken(accountNumber string) *AccessToken {
+	accessToken := AccessToken{AccountNumber: accountNumber, Token: d.generateUuid()}
+	d.AccessTokens[accessToken.Token] = accessToken
+	return &accessToken
 }
 
 func (d *Database) GetAccessToken(token string) (*AccessToken, error) {
@@ -79,10 +79,10 @@ func (d *Database) GetAccessToken(token string) (*AccessToken, error) {
 	return &accessToken, nil
 }
 
-func (d *Database) CreateTodoList() string {
-	listId := d.generateUuid()
-	d.TodoLists[listId] = TodoList{Id: listId}
-	return listId
+func (d *Database) CreateTodoList() *TodoList {
+	todoList := TodoList{Id: d.generateUuid()}
+	d.TodoLists[todoList.Id] = todoList
+	return &todoList
 }
 
 func (d *Database) CreateTodo(listId string, description string, user string) models.TodoDatabaseItem {
@@ -100,7 +100,28 @@ func (d *Database) CreateTodo(listId string, description string, user string) mo
 	return item
 }
 
-// TODO might need explicit tests
+func (d *Database) UpdateTodo(todo *models.TodoDatabaseItem) error {
+	_, exists := d.TodoItems[todo.Id]
+	if !exists {
+		return errors.New("todo does not exist")
+	}
+	todo.UpdatedAt = d.currentTime()
+	d.TodoItems[todo.Id] = *todo
+	return nil
+}
+
+func (d *Database) GetTodo(todoId string) (*models.TodoDatabaseItem, error) {
+	if !regexp.MustCompile(todoIdRegex).MatchString(todoId) {
+		return nil, errors.New("invalid todo")
+	}
+
+	item, exists := d.TodoItems[todoId]
+	if !exists {
+		return nil, errors.New("todo does not exist")
+	}
+	return &item, nil
+}
+
 func (d *Database) GetTodos(listId string) (*[]models.TodoDatabaseItem, error) {
 	if !regexp.MustCompile(listIdRegex).MatchString(listId) {
 		return nil, errors.New("invalid todo list")
@@ -119,28 +140,4 @@ func (d *Database) GetTodos(listId string) (*[]models.TodoDatabaseItem, error) {
 	}
 
 	return &items, nil
-}
-
-// TODO might need explicit tests
-func (d *Database) GetTodo(todoId string) (*models.TodoDatabaseItem, error) {
-	if !regexp.MustCompile(todoIdRegex).MatchString(todoId) {
-		return nil, errors.New("invalid todo")
-	}
-
-	item, exists := d.TodoItems[todoId]
-	if !exists {
-		return nil, errors.New("todo does not exist")
-	}
-	return &item, nil
-}
-
-// TODO might need explicit tests
-func (d *Database) UpdateTodo(todo *models.TodoDatabaseItem) error {
-	_, exists := d.TodoItems[todo.Id]
-	if !exists {
-		return errors.New("todo does not exist")
-	}
-	todo.UpdatedAt = d.currentTime()
-	d.TodoItems[todo.Id] = *todo
-	return nil
 }
