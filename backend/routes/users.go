@@ -17,7 +17,7 @@ func CreateUsers(database db.Database) Users {
 }
 
 func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Registering new user")
+	fmt.Println("Register new user")
 
 	body, err := net.ParseBody[registerRequest](r)
 	if err != nil {
@@ -35,12 +35,13 @@ func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 	response := registerResponse{
 		UserId: user.Id,
 	}
+	fmt.Printf("Created user %s\n", user.Id)
 
 	net.Success(w, response)
 }
 
 func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Logging in user")
+	fmt.Println("Route Login")
 
 	body, err := net.ParseBody[loginRequest](r)
 	if err != nil {
@@ -48,7 +49,8 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !regexp.MustCompile(accountNumberRegex).MatchString(body.UserId) {
+	// TODO move into db
+	if !regexp.MustCompile(userIdRegex).MatchString(body.UserId) {
 		net.HaltBadRequest(w, "invalid user id")
 		return
 	}
@@ -65,6 +67,8 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 	response := loginResponse{
 		AccessToken: accessToken.Token,
 	}
+	// Just for debugging purposes, don't do this in production!
+	fmt.Printf("Created token %s\n", accessToken.Token)
 
 	net.Success(w, response)
 }

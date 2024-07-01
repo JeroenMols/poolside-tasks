@@ -5,7 +5,6 @@ import (
 	"backend/net"
 	"fmt"
 	"net/http"
-	"time"
 )
 
 type TodoLists struct {
@@ -17,6 +16,8 @@ func CreateTodoLists(database db.Database) TodoLists {
 }
 
 func (t *TodoLists) Create(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Route todo list Create")
+
 	_, err := net.ParseBody[listCreateRequest](r)
 	if err != nil {
 		net.HaltBadRequest(w, err.Error())
@@ -28,12 +29,13 @@ func (t *TodoLists) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	todoList := t.database.CreateTodoList()
-	fmt.Printf("Creating new todo list %s\n", todoList.Id)
+	fmt.Printf("Created todo list %s\n", todoList.Id)
 
 	net.Success(w, listCreateResponse{TodoListId: todoList.Id})
 }
 
 func (t *TodoLists) Get(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Route todo list Get")
 	if _, err := t.database.GetAccessToken(r.Header.Get("Authorization")); err != nil {
 		net.HaltUnauthorized(w, err.Error())
 		return
@@ -49,17 +51,11 @@ func (t *TodoLists) Get(w http.ResponseWriter, r *http.Request) {
 
 	formattedTodos := []todoItem{}
 	for _, todo := range *todos {
-		formattedTodos = append(formattedTodos, todoItem{
-			Id:          todo.Id,
-			CreatedBy:   t.database.Users[todo.UserId].Name,
-			Description: todo.Description,
-			Status:      todo.Status,
-			UpdatedAt:   todo.UpdatedAt.Format(time.RFC3339),
-		})
+		// Ignoring the error, as a real database would handle this using foreign keys
+		user, _ := t.database.GetUser(todo.UserId)
+		formattedTodos = append(formattedTodos, *toTodoItem(&todo, user))
 	}
+	fmt.Printf("Get todo list %s\n", listId)
 
-	net.Success(w, listGetResponse{
-		ListId: listId,
-		Todos:  formattedTodos,
-	})
+	net.Success(w, listGetResponse{ListId: listId, Todos: formattedTodos})
 }

@@ -134,6 +134,7 @@ func TestTodoLists_Get(t *testing.T) {
 				"id1": {Id: "id1", ListId: fakeTodoListId, Description: "first todo", Status: "todo", UserId: fakeUserId, UpdatedAt: util.FakeTime(2024, 1, 1)},
 				"id2": {Id: "id2", ListId: fakeTodoListId, Description: "second todo", Status: "ongoing", UserId: fakeUserId, UpdatedAt: util.FakeTime(2023, 1, 1)},
 			}
+			database.TodoItemOrder = []string{"id1", "id2"}
 
 			todoList := CreateTodoLists(database)
 

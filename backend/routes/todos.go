@@ -3,6 +3,7 @@ package routes
 import (
 	"backend/db"
 	"backend/net"
+	"fmt"
 	"net/http"
 	"regexp"
 )
@@ -16,6 +17,7 @@ func CreateTodos(database db.Database) Todos {
 }
 
 func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Route todo Create")
 	body, err := net.ParseBody[todoCreateRequest](r)
 	if err != nil {
 		net.HaltBadRequest(w, err.Error())
@@ -44,10 +46,13 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 	// No need to handle error, we already know the user exists
 	user, _ := t.database.GetUser(item.UserId)
 
+	fmt.Printf("Created todo %s\n", item.Id)
+
 	net.Success(w, toTodoItem(item, user))
 }
 
 func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Route todo Update")
 	body, err := net.ParseBody[todoUpdateRequest](r)
 	if err != nil {
 		net.HaltBadRequest(w, err.Error())
@@ -77,6 +82,7 @@ func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
 	// No need to handle error, we already know the both exists
 	updatedItem, _ := t.database.UpdateTodo(item)
 	user, _ := t.database.GetUser(updatedItem.UserId)
+	fmt.Printf("Updated todo %s\n", item.Id)
 
 	net.Success(w, toTodoItem(updatedItem, user))
 }
