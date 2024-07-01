@@ -14,6 +14,9 @@ export type LogInResponse = {
   access_token: string
 }
 
+export type CreateTodoListRequest = {
+}
+
 export type CreateTodoListResponse = {
   todo_list_id: string
 }
