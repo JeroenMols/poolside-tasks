@@ -8,7 +8,8 @@ A simple Todo list manager consisting out of a Go backend and Electron frontend 
 
 - Frontend (`cd ./frontend`)
   - run app: `npm install && npm run dev`
-  - run end 2 end tests: `npm run tests`
+  - run unit tests: `npm run test:unit`
+  - run end 2 end tests: `npm run test:e2e`
 
 ## Key design choices
 The backend is written in [Go](https://go.dev/), using a simple in-memory database. 
@@ -23,6 +24,7 @@ The frontend is an [Electron](https://www.electronjs.org/) app written in [Svelt
 - [Svelte](https://svelte.dev/), because I already knew React and wanted to learn something new
 - [Vite](https://vitejs.dev/), to have the fastest possible developer experience
 - [PlayWright](https://playwright.dev/), for end 2 end tests (unfortunately [the trace viewer](https://playwright.dev/docs/trace-viewer-intro) does not work on [Electron](https://www.electronjs.org/))
+- [Vitest](https://vitest.dev/), for unit tests
 - Other tools include: [Typescript](https://www.typescriptlang.org/), EsLint and Prettier
 
 ## Tips and tricks

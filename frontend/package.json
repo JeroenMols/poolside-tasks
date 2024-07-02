@@ -19,7 +19,8 @@
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "npm run build && electron-builder --mac",
     "build:linux": "npm run build && electron-builder --linux",
-    "test": "./run_e2e_tests.sh"
+    "test:e2e": "./run_e2e_tests.sh",
+    "test:unit": "vitest"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
@@ -31,6 +32,7 @@
     "@electron-toolkit/eslint-config-ts": "^2.0.0",
     "@electron-toolkit/tsconfig": "^1.0.1",
     "@playwright/test": "^1.45.0",
+    "@sveltejs/kit": "^2.5.18",
     "@sveltejs/vite-plugin-svelte": "^3.1.1",
     "@types/node": "^20.14.8",
     "electron": "^31.0.2",
@@ -44,6 +46,7 @@
     "svelte-check": "^3.8.2",
     "tslib": "^2.6.3",
     "typescript": "^5.5.2",
-    "vite": "^5.3.1"
+    "vite": "^5.3.1",
+    "vitest": "^1.6.0"
   }
 }

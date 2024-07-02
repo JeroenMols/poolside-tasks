@@ -6,3 +6,4 @@ out
 screenshots
 test-results
 playwright-report
+.svelte-kit
