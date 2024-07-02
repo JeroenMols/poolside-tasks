@@ -9,10 +9,10 @@ import (
 )
 
 type Todos struct {
-	database *db.Database
+	database db.Database
 }
 
-func CreateTodos(database *db.Database) Todos {
+func CreateTodos(database db.Database) Todos {
 	return Todos{database: database}
 }
 

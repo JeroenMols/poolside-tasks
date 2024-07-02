@@ -8,10 +8,10 @@ import (
 )
 
 type TodoLists struct {
-	database *db.Database
+	database db.Database
 }
 
-func CreateTodoLists(database *db.Database) TodoLists {
+func CreateTodoLists(database db.Database) TodoLists {
 	return TodoLists{database: database}
 }
 

@@ -6,7 +6,7 @@ import (
 )
 
 func TestDatabase_GetAccessToken(t *testing.T) {
-	database := InMemoryDatabase()
+	database := TestDatabase(nil, nil)
 
 	const validAccessToken = "tkn_aaaaaaaaaaaaaaaaaaaaaa"
 	const nonExistingAccessToken = "tkn_bbbbbbbbbbbbbbbbbbbbbb"
