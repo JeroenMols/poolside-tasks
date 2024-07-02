@@ -14,8 +14,8 @@ export type LogInResponse = {
   access_token: string
 }
 
-export type CreateTodoListRequest = {
-}
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type CreateTodoListRequest = {}
 
 export type CreateTodoListResponse = {
   todo_list_id: string
