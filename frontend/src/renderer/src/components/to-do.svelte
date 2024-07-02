@@ -3,6 +3,7 @@
   import ErrorBanner from './error-banner.svelte'
   import type { TodoItem, TodoStatus } from '../net/models'
   import { createTodoItem, getTodoList, updateTodoItem } from '../net/requests'
+  import { nextTodoStatus, previousTodoStatus } from '../utils/states'
 
   export let accessToken: string = ''
   export let todoListId: string = ''
@@ -45,20 +46,12 @@
     }
   }
 
-  // Note: this code is intentionally cryptic to demonstrate backend validation
+  // Note: this intentionally allows invalid status transitions to demonstrate backend validation
   const prevStatus = async (todo: TodoItem) => {
-    const allowedStatus: TodoStatus[] = ['todo', 'ongoing', 'done']
-    const previousStatus =
-      allowedStatus[
-        (allowedStatus.indexOf(todo.status) + allowedStatus.length - 1) % allowedStatus.length
-      ]
-    await updateTodo(todo, previousStatus)
+    await updateTodo(todo, previousTodoStatus(todo))
   }
   const nextStatus = async (todo: TodoItem) => {
-    const allowedStatus: TodoStatus[] = ['todo', 'ongoing', 'done']
-    const nextStatus =
-      allowedStatus[(allowedStatus.indexOf(todo.status) + 1) % allowedStatus.length]
-    await updateTodo(todo, nextStatus)
+    await updateTodo(todo, nextTodoStatus(todo))
   }
 
   const onDismissError = () => {
