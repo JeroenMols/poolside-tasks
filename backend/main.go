@@ -31,6 +31,7 @@ func main() {
 
 	handler := net.CorsMiddleware(mux, "*")
 
+	fmt.Println("Listening on localhost:8080")
 	err := http.ListenAndServe("localhost:8080", handler)
 	if err != nil {
 		fmt.Println(err.Error())
