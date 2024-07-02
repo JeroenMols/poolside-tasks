@@ -55,8 +55,8 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, exists := u.database.Users[body.UserId]
-	if !exists {
+	user, err := u.database.GetUser(body.UserId)
+	if err != nil {
 		net.HaltBadRequest(w, "user not found")
 		return
 	}
