@@ -3,10 +3,12 @@ A simple Todo list manager consisting out of a Go backend and Electron frontend 
 
 ## Getting started
 - Backend (`cd ./backend`)
+  - install Go `brew install go`
   - run server: `./start_server.sh`
   - run tests: `go test ./...`
 
 - Frontend (`cd ./frontend`)
+  - install [Node.js](https://nodejs.org/en/download/package-manager)
   - run app: `npm install && npm run dev`
   - run unit tests: `npm run test:unit`
   - run end 2 end tests: `npm run test:e2e`
