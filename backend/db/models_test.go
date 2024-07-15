@@ -65,6 +65,7 @@ func TestTodoItem_ChangeStatus(t *testing.T) {
 			err := item.ChangeStatus(tt.newStatus)
 			if err != nil || tt.error {
 				expected := fmt.Sprintf("invalid status transition from %s to %s", tt.oldStatus, tt.newStatus)
+				assert.Equal(t, tt.error, true)
 				assert.Equal(t, expected, err.Error())
 			} else {
 				assert.Equal(t, tt.newStatus, item.Status)
