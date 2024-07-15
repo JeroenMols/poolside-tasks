@@ -36,8 +36,10 @@
 
 <div class="card">
   <h1>Tasks</h1>
-  <input bind:value={name} type="text" placeholder="Enter your name" />
-  <button on:click={() => register()}>Create account</button>
+  <form on:submit|preventDefault={register}>
+    <input bind:value={name} type="text" placeholder="Enter your name" required />
+    <button type="submit">Create account</button>
+  </form>
   <div class="footer">&copy; 2024 Jeroen Mols</div>
 </div>
 

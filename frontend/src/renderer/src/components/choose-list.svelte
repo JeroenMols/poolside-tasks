@@ -42,8 +42,10 @@
 <ErrorBanner {errorMessage} {onDismissError} />
 <div class="card">
   <h1>Choose a list</h1>
-  <input bind:value={todoListId} type="text" placeholder="join existing list" />
-  <button on:click={() => checkListExists()}>join</button>
+  <form on:submit|preventDefault={checkListExists}>
+    <input bind:value={todoListId} type="text" placeholder="join existing list" required />
+    <button type="submit">join</button>
+  </form>
 
   <p>Or</p>
 

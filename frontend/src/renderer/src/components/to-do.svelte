@@ -88,10 +88,10 @@
   </ul>
 {/if}
 
-<div class="new-task">
+<form class="new-task" on:submit|preventDefault={createTodo}>
   <input type="text" bind:value={newTodoDescription} placeholder="New task description" />
-  <button on:click={createTodo}>Add</button>
-</div>
+  <button type="submit">Add</button>
+</form>
 
 <style>
   @import '../assets/base.css';
