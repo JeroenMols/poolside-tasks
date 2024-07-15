@@ -24,12 +24,6 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := t.database.GetAccessToken(r.Header.Get("Authorization"))
-	if err != nil {
-		net.HaltUnauthorized(w, err.Error())
-		return
-	}
-
 	if !regexp.MustCompile(todoDescriptionRegex).MatchString(body.Description) {
 		net.HaltBadRequest(w, "description not valid")
 		return
@@ -41,6 +35,7 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	accessToken, _ := t.database.GetAccessToken(r.Header.Get("Authorization"))
 	item := t.database.CreateTodo(body.ListId, body.Description, accessToken.UserId)
 
 	// No need to handle error, we already know the user exists
@@ -60,12 +55,6 @@ func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	todoId := r.PathValue("todo_id")
-
-	_, err = t.database.GetAccessToken(r.Header.Get("Authorization"))
-	if err != nil {
-		net.HaltUnauthorized(w, err.Error())
-		return
-	}
 
 	item, err := t.database.GetTodo(todoId)
 	if err != nil {

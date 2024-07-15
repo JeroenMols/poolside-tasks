@@ -23,10 +23,6 @@ func (t *TodoLists) Create(w http.ResponseWriter, r *http.Request) {
 		net.HaltBadRequest(w, err.Error())
 		return
 	}
-	if _, err := t.database.GetAccessToken(r.Header.Get("Authorization")); err != nil {
-		net.HaltUnauthorized(w, err.Error())
-		return
-	}
 
 	todoList := t.database.CreateTodoList()
 	fmt.Printf("Created todo list %s\n", todoList.Id)
@@ -36,11 +32,6 @@ func (t *TodoLists) Create(w http.ResponseWriter, r *http.Request) {
 
 func (t *TodoLists) Get(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Route todo list Get")
-	if _, err := t.database.GetAccessToken(r.Header.Get("Authorization")); err != nil {
-		net.HaltUnauthorized(w, err.Error())
-		return
-	}
-
 	listId := r.PathValue("list_id")
 
 	todos, err := t.database.GetTodos(listId)

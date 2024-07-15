@@ -31,14 +31,6 @@ func TestTodoLists_Create(t *testing.T) {
 			databaseLists: make(map[string]db.TodoList),
 		},
 		{
-			description:   "Access token does not exist",
-			accessToken:   fakeWrongToken,
-			body:          `{}`,
-			responseCode:  http.StatusUnauthorized,
-			responseBody:  `{"error":"user not found"}`,
-			databaseLists: make(map[string]db.TodoList),
-		},
-		{
 			description:   "Create new todo list",
 			accessToken:   fakeToken,
 			body:          `{}`,
@@ -83,13 +75,6 @@ func TestTodoLists_Get(t *testing.T) {
 	const fakeNoElementsTodoListId = fakeTodoListId2
 
 	tests := []getListTestCase{
-		{
-			description:  "Invalid access token",
-			accessToken:  "not-an-access-token",
-			todoListId:   fakeNoElementsTodoListId,
-			responseCode: http.StatusUnauthorized,
-			responseBody: `{"error":"invalid access token"}`,
-		},
 		{
 			description:  "Invalid todo list id parameter",
 			accessToken:  fakeToken,

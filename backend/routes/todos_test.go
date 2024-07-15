@@ -32,15 +32,6 @@ func TestTodo_CreateValidations(t *testing.T) {
 			databaseTodos: make(map[string]db.TodoItem),
 		},
 		{
-			description: "Access token does not exist",
-			accessToken: fakeWrongToken,
-			body: fmt.Sprintf(`{"description":"%s", "todo_list_id": "%s"}`,
-				"fake_description", fakeTodoListId),
-			responseCode:  http.StatusUnauthorized,
-			responseBody:  `{"error":"user not found"}`,
-			databaseTodos: make(map[string]db.TodoItem),
-		},
-		{
 			description: "Description too long",
 			accessToken: fakeToken,
 			body: fmt.Sprintf(`{"description":"%s", "todo_list_id":"%s"}`,
@@ -177,14 +168,6 @@ func TestTodo_UpdateValidations(t *testing.T) {
 			body:         `{"invalid":"body"}`,
 			responseCode: http.StatusBadRequest,
 			responseBody: `{"error":"body not valid"}`,
-		},
-		{
-			description:  "Access token does not exist",
-			accessToken:  fakeWrongToken,
-			todoId:       fakeTodoId,
-			body:         `{"status":"progress"}`,
-			responseCode: http.StatusUnauthorized,
-			responseBody: `{"error":"user not found"}`,
 		},
 		{
 			description:  "Todo Id invalid",
