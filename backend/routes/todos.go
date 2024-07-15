@@ -17,7 +17,6 @@ func CreateTodos(database db.Database) Todos {
 }
 
 func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Route todo Create")
 	body, err := net.ParseBody[todoCreateRequest](r)
 	if err != nil {
 		net.HaltBadRequest(w, err.Error())
@@ -47,7 +46,6 @@ func (t *Todos) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (t *Todos) Update(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Route todo Update")
 	body, err := net.ParseBody[todoUpdateRequest](r)
 	if err != nil {
 		net.HaltBadRequest(w, err.Error())

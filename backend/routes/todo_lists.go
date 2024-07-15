@@ -16,8 +16,6 @@ func CreateTodoLists(database db.Database) TodoLists {
 }
 
 func (t *TodoLists) Create(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Route todo list Create")
-
 	_, err := net.ParseBody[listCreateRequest](r)
 	if err != nil {
 		net.HaltBadRequest(w, err.Error())
@@ -31,7 +29,6 @@ func (t *TodoLists) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (t *TodoLists) Get(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Route todo list Get")
 	listId := r.PathValue("list_id")
 
 	todos, err := t.database.GetTodos(listId)

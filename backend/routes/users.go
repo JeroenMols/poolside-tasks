@@ -17,8 +17,6 @@ func CreateUsers(database db.Database) Users {
 }
 
 func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Register new user")
-
 	body, err := net.ParseBody[registerRequest](r)
 	if err != nil {
 		net.HaltBadRequest(w, err.Error())
@@ -41,8 +39,6 @@ func (u *Users) Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Route Login")
-
 	body, err := net.ParseBody[loginRequest](r)
 	if err != nil {
 		net.HaltBadRequest(w, err.Error())

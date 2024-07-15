@@ -30,7 +30,8 @@ func main() {
 	mux.HandleFunc("GET /debug", debug.Debug)
 
 	authentication := net.AuthenticationMiddleware(mux, database)
-	handler := net.CorsMiddleware(authentication, "*")
+	logging := net.LoggingMiddleware(authentication)
+	handler := net.CorsMiddleware(logging, "*")
 
 	fmt.Println("Listening on localhost:8080")
 	err := http.ListenAndServe("localhost:8080", handler)
