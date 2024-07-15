@@ -14,8 +14,8 @@ import {
 } from './models'
 
 export async function createAccount(userName: string): Promise<RegisterResponse | ErrorResponse> {
-  if (userName.length < 5) {
-    return { error: 'Name must be at least 5 characters long' }
+  if (userName.length < 3) {
+    return { error: 'Name must be at least 3 characters long' }
   }
   return await doRequest<RegisterRequest, RegisterResponse>(
     'http://localhost:8080/users/register',
