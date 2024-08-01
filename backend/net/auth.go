@@ -6,11 +6,11 @@ import (
 	"slices"
 )
 
-var noAuthenticatedEndpoints = []string{"/users/register", "/users/login"}
+var nonAuthenticatedEndpoints = []string{"/users/register", "/users/login", "/debug"}
 
 func AuthenticationMiddleware(next http.Handler, database db.Database) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if slices.Contains(noAuthenticatedEndpoints, r.URL.Path) {
+		if slices.Contains(nonAuthenticatedEndpoints, r.URL.Path) {
 			next.ServeHTTP(w, r)
 			return
 		}
